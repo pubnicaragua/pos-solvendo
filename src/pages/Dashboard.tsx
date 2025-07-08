@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { ShoppingCart, Search, Users, Star, Trash2, RotateCcw, Calendar } from 'lucide-react'
+import { ShoppingCart, Search, Users, Star, Calendar, X, Plus, Minus } from 'lucide-react'
 import { POSLayout } from '../components/pos/POSLayout'
-import { Button } from '../components/common/Button'
-import { Input } from '../components/common/Input'
+import { Button } from '../common/Button'
+import { Input } from '../common/Input'
 import { PaymentModal } from '../components/pos/PaymentModal'
 import { ClientModal } from '../components/pos/ClientModal'
 import { ReceiptModal } from '../components/pos/ReceiptModal'
@@ -22,6 +22,7 @@ export const Dashboard: React.FC = () => {
   const [showCashModal, setShowCashModal] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null)
   const [lastVenta, setLastVenta] = useState<Venta | null>(null)
+  const [activeTab, setActiveTab] = useState<'destacados' | 'borradoras' | 'productos' | 'clientes'>('destacados')
   
   const {
     productos,
@@ -84,73 +85,193 @@ export const Dashboard: React.FC = () => {
     setSelectedClient(cliente)
   }
 
+  const renderProductGrid = () => {
+    if (activeTab === 'destacados') {
+      return (
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Star className="w-4 h-4 text-blue-600 fill-current" />
+              <span className="text-sm font-medium text-blue-800">Productos destacados</span>
+            </div>
+            <div className="text-xs text-blue-600">Stock: 100 unidades</div>
+            <div className="text-xs text-blue-600">SKU: 4.5/5 (8624/8623)</div>
+          </div>
+          
+          {filteredProductos.slice(0, 3).map((producto) => (
+            <div key={producto.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                  <span className="text-xs">📦</span>
+                </div>
+                <div>
+                  <div className="font-medium text-sm">{producto.nombre}</div>
+                  <div className="text-xs text-gray-500">Stock: 100 unidades</div>
+                  <div className="text-xs text-gray-500">SKU: {producto.codigo}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{formatPrice(producto.precio)}</span>
+                <button
+                  onClick={() => addToCart(producto)}
+                  className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    if (activeTab === 'borradoras') {
+      return (
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm font-medium text-blue-800">Borradoras de Venta</span>
+            </div>
+            <div className="text-xs text-blue-600">Fecha del borrador: 14/05/2025</div>
+            <div className="space-y-2 mt-3">
+              <div className="text-xs">Buscar borradoras...</div>
+              <div className="text-xs">N°1 - Pedido N°: 14/05/2025</div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (activeTab === 'productos') {
+      return (
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm font-medium text-blue-800">Productos / Servicios</span>
+            </div>
+            <div className="text-xs text-blue-600">Productos totales</div>
+          </div>
+          
+          {filteredProductos.map((producto) => (
+            <div key={producto.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                  <span className="text-xs">📦</span>
+                </div>
+                <div>
+                  <div className="font-medium text-sm">{producto.nombre}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{formatPrice(producto.precio)}</span>
+                <button
+                  onClick={() => addToCart(producto)}
+                  className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          ))}
+          
+          <div className="text-center py-4">
+            <Input
+              placeholder="Buscar productos..."
+              value={searchTerm}
+              onChange={setSearchTerm}
+              icon={Search}
+              iconPosition="left"
+            />
+          </div>
+        </div>
+      )
+    }
+
+    if (activeTab === 'clientes') {
+      return (
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-800">Clientes</span>
+            </div>
+            <div className="text-xs text-blue-600">Cliente</div>
+          </div>
+          
+          <Button
+            fullWidth
+            variant="primary"
+            onClick={handleClientSelect}
+          >
+            Registrar nuevo cliente
+          </Button>
+        </div>
+      )
+    }
+
+    return null
+  }
+
   return (
     <POSLayout>
       <div className="flex h-[calc(100vh-80px)]">
         {/* Left Panel - Products */}
         <div className="flex-1 flex flex-col bg-white">
-          {/* Search and Filters */}
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex gap-4 mb-4">
-              <div className="flex-1">
-                <Input
-                  placeholder="Ingresa aquí el producto o servicio..."
-                  value={searchTerm}
-                  onChange={setSearchTerm}
-                  icon={Search}
-                  iconPosition="left"
-                />
-              </div>
-              <Button variant="outline" size="sm">
-                Categorías
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowReturnsModal(true)}
-              >
-                Devoluciones
-              </Button>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">
-                {filteredProductos.length} productos encontrados
-              </p>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" icon={Star}>
-                  Destacados
-                </Button>
-                <Button variant="ghost" size="sm">
-                  Más vendidos
-                </Button>
-              </div>
-            </div>
+          {/* Search */}
+          <div className="p-4 border-b border-gray-200">
+            <Input
+              placeholder="Ingresa aquí el producto o servicio..."
+              value={searchTerm}
+              onChange={setSearchTerm}
+              icon={Search}
+              iconPosition="left"
+            />
           </div>
 
-          {/* Products Grid */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-              {filteredProductos.map((producto) => (
-                <div
-                  key={producto.id}
-                  className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer group hover:border-blue-300"
-                  onClick={() => addToCart(producto)}
-                >
-                  <div className="aspect-square bg-gray-100 rounded-lg mb-2 flex items-center justify-center">
-                    <div className="text-3xl">📦</div>
-                  </div>
-                  <h3 className="font-medium text-gray-900 text-xs mb-1 line-clamp-2">
-                    {producto.nombre}
-                  </h3>
-                  <p className="text-xs text-gray-500 mb-1">
-                    Código: {producto.codigo}
-                  </p>
-                  <p className="text-sm font-semibold text-blue-600 mb-2">
-                    {formatPrice(producto.precio)}
-                  </p>
-                </div>
-              ))}
+          {/* Content Area */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {renderProductGrid()}
+          </div>
+
+          {/* Bottom Tabs */}
+          <div className="border-t border-gray-200 p-4">
+            <div className="grid grid-cols-4 gap-2">
+              <button
+                onClick={() => setActiveTab('destacados')}
+                className={`flex flex-col items-center gap-1 p-3 rounded-lg transition-colors ${
+                  activeTab === 'destacados' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Star className="w-5 h-5" />
+                <span className="text-xs">Destacado</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('borradoras')}
+                className={`flex flex-col items-center gap-1 p-3 rounded-lg transition-colors ${
+                  activeTab === 'borradoras' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <div className="w-5 h-5 flex items-center justify-center">📄</div>
+                <span className="text-xs">Borradoras</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('productos')}
+                className={`flex flex-col items-center gap-1 p-3 rounded-lg transition-colors ${
+                  activeTab === 'productos' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <div className="w-5 h-5 flex items-center justify-center">📦</div>
+                <span className="text-xs">Productos</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('clientes')}
+                className={`flex flex-col items-center gap-1 p-3 rounded-lg transition-colors ${
+                  activeTab === 'clientes' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Users className="w-5 h-5" />
+                <span className="text-xs">Clientes</span>
+              </button>
             </div>
           </div>
         </div>
@@ -158,20 +279,18 @@ export const Dashboard: React.FC = () => {
         {/* Right Panel - Cart */}
         <div className="w-96 bg-white border-l border-gray-200 flex flex-col">
           {/* Cart Header */}
-          <div className="p-6 border-b border-gray-200">
+          <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Carrito</h2>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">{cartItemsCount} ítems</span>
                 {carrito.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    icon={Trash2}
+                  <button
                     onClick={clearCart}
+                    className="text-red-500 hover:text-red-700 text-sm"
                   >
                     Limpiar
-                  </Button>
+                  </button>
                 )}
               </div>
             </div>
@@ -192,82 +311,73 @@ export const Dashboard: React.FC = () => {
                     </p>
                     <p className="text-xs text-blue-700">RUT: {selectedClient.rut}</p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <button
                     onClick={() => setSelectedClient(null)}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
                   >
                     Cambiar
-                  </Button>
+                  </button>
                 </div>
               </div>
             ) : (
-              <Button
-                variant="outline"
-                fullWidth
-                icon={Users}
+              <button
                 onClick={handleClientSelect}
+                className="w-full p-3 border border-gray-300 rounded-lg text-left hover:border-blue-300 transition-colors"
               >
-                Seleccionar cliente
-              </Button>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-600">Cliente</span>
+                </div>
+              </button>
             )}
           </div>
 
           {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-4">
             {carrito.length === 0 ? (
               <div className="text-center py-12">
-                <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No hay productos en el carrito</p>
-                <p className="text-sm text-gray-400 mt-1">
-                  Selecciona productos para comenzar
-                </p>
+                <div className="text-gray-400 mb-2">N° Líneas / Tot. Items: 0</div>
+                <div className="text-gray-400 mb-4">Boleta manual (No válida)</div>
+                <div className="text-center text-gray-500">
+                  <p>No hay productos en el carrito</p>
+                </div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="text-sm text-gray-600 mb-4">
+                  N° Líneas / Tot. Items: {cartItemsCount} | Boleta manual (No válida)
+                </div>
+                
                 {carrito.map((item, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-gray-900 text-sm">
-                        {item.producto.nombre}
-                      </h4>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        icon={Trash2}
-                        onClick={() => removeFromCart(index)}
-                        className="text-red-500 hover:text-red-700 p-1"
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mb-3">
-                      {formatPrice(item.producto.precio)} c/u
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => updateCartItem(index, item.cantidad - 1)}
-                          className="w-8 h-8 p-0 text-lg"
-                        >
-                          -
-                        </Button>
-                        <span className="w-12 text-center font-medium">
-                          {item.cantidad}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => updateCartItem(index, item.cantidad + 1)}
-                          className="w-8 h-8 p-0 text-lg"
-                        >
-                          +
-                        </Button>
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium text-sm mb-1">{item.producto.nombre}</div>
+                      <div className="flex items-center gap-4 text-xs text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => updateCartItem(index, item.cantidad - 1)}
+                            className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center hover:bg-gray-300"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="w-8 text-center">{item.cantidad}</span>
+                          <button
+                            onClick={() => updateCartItem(index, item.cantidad + 1)}
+                            className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center hover:bg-gray-300"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <span>Descuento: 0%</span>
+                        <span>Importe: {formatPrice(item.producto.precio * item.cantidad)}</span>
                       </div>
-                      <p className="font-semibold text-gray-900">
-                        {formatPrice(item.producto.precio * item.cantidad)}
-                      </p>
                     </div>
+                    <button
+                      onClick={() => removeFromCart(index)}
+                      className="text-red-500 hover:text-red-700 ml-2"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
                 ))}
               </div>
@@ -275,26 +385,23 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Cart Footer */}
-          {carrito.length > 0 && (
-            <div className="p-6 border-t border-gray-200 space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold text-gray-900">Total</span>
-                <span className="text-2xl font-bold text-blue-600">
-                  {formatPrice(cartTotal)}
-                </span>
-              </div>
-              
-              <Button 
-                fullWidth 
-                size="lg" 
-                icon={ShoppingCart}
-                onClick={handlePayment}
-                disabled={!cajaAbierta}
-              >
-                Pagar
-              </Button>
+          <div className="p-4 border-t border-gray-200 space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-semibold text-gray-900">Total</span>
+              <span className="text-2xl font-bold text-blue-600">
+                {formatPrice(cartTotal)}
+              </span>
             </div>
-          )}
+            
+            <Button 
+              fullWidth 
+              size="lg"
+              onClick={handlePayment}
+              disabled={!cajaAbierta || carrito.length === 0}
+            >
+              Pagar
+            </Button>
+          </div>
         </div>
       </div>
 

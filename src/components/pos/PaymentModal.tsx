@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { CreditCard, DollarSign, Smartphone, X } from 'lucide-react'
+import { CreditCard, DollarSign, Smartphone, X, Copy, Plus } from 'lucide-react'
 import { Button } from '../common/Button'
 import { Input } from '../common/Input'
 import { usePOS } from '../../contexts/POSContext'
@@ -17,7 +17,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   onPaymentComplete,
   total
 }) => {
-  const [selectedMethod, setSelectedMethod] = useState<string>('efectivo')
+  const [selectedMethod, setSelectedMethod] = useState<string>('cheque')
   const [selectedDte, setSelectedDte] = useState<string>('boleta')
   const [amountReceived, setAmountReceived] = useState('')
   const [loading, setLoading] = useState(false)
@@ -48,133 +48,119 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     onClose()
   }
 
-  const paymentMethods = [
-    { id: 'efectivo', name: 'Efectivo', icon: DollarSign },
-    { id: 'tarjeta', name: 'Tarjeta', icon: CreditCard },
-    { id: 'transferencia', name: 'Transferencia', icon: Smartphone }
-  ]
-
-  const dteTypes = [
-    { id: 'boleta', name: 'Boleta electrónica' },
-    { id: 'factura', name: 'Factura electrónica' }
-  ]
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-gray-900">Métodos de pago</h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={X}
+      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-blue-600" />
+            <h3 className="text-xl font-semibold text-gray-900">Pagar</h3>
+          </div>
+          <button
             onClick={onClose}
-          />
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Payment Methods */}
-          <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Método de pago</h4>
-            <div className="space-y-2">
-              {paymentMethods.map((method) => (
-                <button
-                  key={method.id}
-                  onClick={() => setSelectedMethod(method.id)}
-                  className={`w-full p-3 rounded-lg border-2 transition-all flex items-center gap-3 ${
-                    selectedMethod === method.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <method.icon className="w-5 h-5 text-gray-600" />
-                  <span className="font-medium">{method.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Document Type */}
-          <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Tipo de documento</h4>
-            <div className="space-y-2">
-              {dteTypes.map((dte) => (
-                <button
-                  key={dte.id}
-                  onClick={() => setSelectedDte(dte.id)}
-                  className={`w-full p-3 rounded-lg border-2 transition-all text-left ${
-                    selectedDte === dte.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <span className="font-medium">{dte.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Cash Payment Details */}
-        {selectedMethod === 'efectivo' && (
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Total a pagar
-                </label>
-                <div className="text-2xl font-bold text-gray-900">
-                  {formatPrice(total)}
-                </div>
-              </div>
-              <div>
-                <Input
-                  label="Efectivo recibido"
-                  type="number"
-                  value={amountReceived}
-                  onChange={setAmountReceived}
-                  placeholder="0"
-                  icon={DollarSign}
-                  iconPosition="left"
-                />
-              </div>
-            </div>
+        <div className="p-6">
+          <div className="mb-6">
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Facturación</h4>
             
-            {amountReceived && parseFloat(amountReceived) >= total && (
-              <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-green-800">Vuelto:</span>
-                  <span className="text-lg font-bold text-green-900">
-                    {formatPrice(calculateChange())}
-                  </span>
+            {/* Document Type Selection */}
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="dte"
+                    value="boleta"
+                    checked={selectedDte === 'boleta'}
+                    onChange={(e) => setSelectedDte(e.target.value)}
+                    className="text-blue-600"
+                  />
+                  <span>Boleta electrónica</span>
+                </label>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <span className="text-sm">Envío inmediato</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Copy className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-600">Despacho</span>
                 </div>
               </div>
-            )}
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border border-gray-300 rounded"></div>
+                  <span className="text-sm">Documentos</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Plus className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-600">Agregar cupón</span>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 mt-6">
-          <Button
-            variant="outline"
-            fullWidth
-            onClick={onClose}
-            disabled={loading}
-          >
-            Cancelar
-          </Button>
-          <Button
-            fullWidth
-            onClick={handleConfirmPayment}
-            loading={loading}
-            disabled={
-              selectedMethod === 'efectivo' 
-                ? !amountReceived || parseFloat(amountReceived) < total
-                : false
-            }
-          >
-            Confirmar pago
-          </Button>
+          {/* Payment Methods */}
+          <div className="mb-6">
+            <h4 className="text-sm font-medium text-gray-700 mb-3">Métodos de pago</h4>
+            <select
+              value={selectedMethod}
+              onChange={(e) => setSelectedMethod(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+            >
+              <option value="cheque">Cheque</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="transferencia">Transferencia</option>
+            </select>
+          </div>
+
+          {/* Payment Summary */}
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm">Total a pagar</span>
+                <span className="font-semibold">{formatPrice(total)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm">Total pagado</span>
+                <span>$0</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm">Vuelto</span>
+                <span>$0</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              fullWidth
+              onClick={onClose}
+              disabled={loading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              fullWidth
+              onClick={handleConfirmPayment}
+              loading={loading}
+            >
+              Confirmar pago
+            </Button>
+          </div>
         </div>
       </div>
     </div>
