@@ -129,7 +129,7 @@ export const POSLayout: React.FC<POSLayoutProps> = ({ children }) => {
                   </div>
                   <div className="text-sm">
                     <p className="font-medium text-gray-900">{user?.nombre}</p>
-                    <p className="text-gray-600">Cajero</p>
+                  <p className="font-medium text-gray-900">{user?.nombre} {user?.apellidos}</p>
                   </div>
                 </div>
                 

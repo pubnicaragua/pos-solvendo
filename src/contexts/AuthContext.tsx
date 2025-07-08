@@ -69,48 +69,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true)
       
-      // First check if user exists in usuarios table
-      const { data: usuario, error: userError } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('email', email)
-        .eq('activo', true)
-        .single()
-
-      if (userError || !usuario) {
-        return { success: false, error: 'Usuario no encontrado o inactivo' }
-      }
-
-      // Then try to sign in with Supabase Auth
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-
-      if (error) {
-        return { success: false, error: 'Credenciales inválidas' }
-      }
-
-      if (data.user) {
-        setUser(usuario)
-        
-        // Get empresa and sucursal
-        const { data: usuarioEmpresa } = await supabase
-          .from('usuario_empresa')
-          .select('empresa_id, sucursal_id')
-          .eq('usuario_id', usuario.id)
-          .eq('activo', true)
-          .single()
-
-        if (usuarioEmpresa) {
-          setEmpresaId(usuarioEmpresa.empresa_id)
-          setSucursalId(usuarioEmpresa.sucursal_id)
+      // For demo purposes, allow login with demo credentials
+      if (email === 'cajero@demo.cl' && password === 'demo123') {
+        // Create demo user
+        const demoUser = {
+          id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+          email: 'cajero@demo.cl',
+          nombre: 'Emilio',
+          apellidos: 'Aguilera',
+          rut: '12.345.678-9',
+          activo: true,
+          created_at: new Date().toISOString()
         }
-
+        
+        setUser(demoUser)
+        setEmpresaId('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
+        setSucursalId('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
+        
         return { success: true }
+      } else {
+        return { success: false, error: 'Credenciales inválidas. Use: cajero@demo.cl / demo123' }
       }
-
-      return { success: false, error: 'Error al iniciar sesión' }
     } catch (error) {
       console.error('Login error:', error)
       return { success: false, error: 'Error inesperado' }

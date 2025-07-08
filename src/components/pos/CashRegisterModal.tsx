@@ -44,7 +44,7 @@ export const CashRegisterModal: React.FC<CashRegisterModalProps> = ({
   const isOpenCash = type === 'open'
   const title = isOpenCash ? 'Efectivo inicial' : 'Cierre de caja'
   const subtitle = isOpenCash 
-    ? 'Ingresa el monto inicial de efectivo' 
+    ? 'Ingresar efectivo' 
     : 'Confirma el cierre de caja del día'
 
   return (
@@ -65,7 +65,7 @@ export const CashRegisterModal: React.FC<CashRegisterModalProps> = ({
         {isOpenCash && (
           <div className="mb-6">
             <Input
-              label="Ingreso efectivo"
+              label="Ingresar efectivo"
               type="number"
               value={amount}
               onChange={setAmount}
@@ -109,7 +109,7 @@ export const CashRegisterModal: React.FC<CashRegisterModalProps> = ({
             loading={loading}
             disabled={isOpenCash && !amount}
           >
-            {isOpenCash ? 'Abrir caja' : 'Cerrar caja'}
+            {isOpenCash ? 'Aperturar' : 'Cerrar caja'}
           </Button>
         </div>
       </div>

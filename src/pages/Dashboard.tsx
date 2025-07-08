@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ShoppingCart, Search, Grid3X3, Users, Star, Trash2, RotateCcw } from 'lucide-react'
+import { ShoppingCart, Search, Grid3X3, Users, Star, Trash2, RotateCcw, Calendar } from 'lucide-react'
 import { POSLayout } from '../components/pos/POSLayout'
 import { Button } from '../components/common/Button'
 import { Input } from '../components/common/Input'
@@ -130,37 +130,25 @@ export const Dashboard: React.FC = () => {
 
           {/* Products Grid */}
           <div className="flex-1 overflow-y-auto p-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               {filteredProductos.map((producto) => (
                 <div
                   key={producto.id}
-                  className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer group"
+                  className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer group hover:border-blue-300"
                   onClick={() => addToCart(producto)}
                 >
-                  <div className="aspect-square bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
+                  <div className="aspect-square bg-gray-100 rounded-lg mb-2 flex items-center justify-center">
                     <div className="text-3xl">📦</div>
                   </div>
-                  <h3 className="font-medium text-gray-900 text-sm mb-1 line-clamp-2">
+                  <h3 className="font-medium text-gray-900 text-xs mb-1 line-clamp-2">
                     {producto.nombre}
                   </h3>
-                  <p className="text-xs text-gray-500 mb-2">
+                  <p className="text-xs text-gray-500 mb-1">
                     Código: {producto.codigo}
                   </p>
-                  <p className="text-lg font-semibold text-blue-600">
+                  <p className="text-sm font-semibold text-blue-600 mb-2">
                     {formatPrice(producto.precio)}
                   </p>
-                  <Button
-                    size="sm"
-                    fullWidth
-                    className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity"
-                    icon={ShoppingCart}
-                    onClick={(e) => {
-                      e?.stopPropagation()
-                      addToCart(producto)
-                    }}
-                  >
-                    Agregar
-                  </Button>
                 </div>
               ))}
             </div>
@@ -186,6 +174,12 @@ export const Dashboard: React.FC = () => {
                   </Button>
                 )}
               </div>
+            </div>
+
+            {/* Date Display */}
+            <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
+              <Calendar className="w-4 h-4" />
+              <span>Fecha del vendedor: {new Date().toLocaleDateString('es-CL')}</span>
             </div>
 
             {/* Client Selection */}
