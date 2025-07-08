@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Printer, Mail, X, Download } from 'lucide-react'
 import { Button } from '../common/Button'
 import { Venta } from '../../lib/supabase'
@@ -14,6 +14,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   onClose,
   venta
 }) => {
+  const [showPrintDialog, setShowPrintDialog] = useState(false)
+
   if (!isOpen || !venta) return null
 
   const formatPrice = (price: number) => {
@@ -24,17 +26,43 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   }
 
   const handlePrint = () => {
-    window.print()
+    setShowPrintDialog(true)
   }
 
   const handleEmail = () => {
-    // Implement email functionality
     console.log('Sending email...')
   }
 
   const handleDownload = () => {
-    // Implement PDF download
     console.log('Downloading PDF...')
+  }
+
+  const handleConfirmPrint = () => {
+    console.log('Printing receipt...')
+    setShowPrintDialog(false)
+    onClose()
+  }
+
+  if (showPrintDialog) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+          <div className="p-6 text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Boleta generada</h3>
+            <p className="text-gray-600 mb-6">Enviar por correo electrónico (Opcional)</p>
+            
+            <div className="flex gap-3 mb-6">
+              <Button variant="outline" fullWidth onClick={handleEmail}>
+                Enviar
+              </Button>
+              <Button fullWidth onClick={handleConfirmPrint}>
+                Imprimir
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -42,12 +70,12 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h3 className="text-xl font-semibold text-gray-900">Boleta generada</h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={X}
+          <button
             onClick={onClose}
-          />
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
         <div className="p-6">

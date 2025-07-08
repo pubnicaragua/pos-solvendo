@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Truck, Search, X, Plus, User } from 'lucide-react'
+import { Truck, Search, X, Plus, User, Calendar } from 'lucide-react'
 import { Button } from '../common/Button'
 import { Input } from '../common/Input'
 import { ClientModal } from './ClientModal'
@@ -17,8 +17,9 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null)
   const [showClientModal, setShowClientModal] = useState(false)
+  const [showClientError, setShowClientError] = useState(false)
   const [deliveryData, setDeliveryData] = useState({
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: '19/05/2025',
     tipo: 'Tipo de despacho',
     destinatario: 'Inicial demo',
     direccion: 'Dirección',
@@ -51,21 +52,43 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
   }
 
   const handleConfirmDelivery = () => {
+    if (!selectedClient) {
+      setShowClientError(true)
+      return
+    }
     console.log('Confirming delivery...', deliveryData)
     onClose()
+  }
+
+  if (showClientError) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+          <div className="p-6 text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No has seleccionado el cliente</h3>
+            <Button fullWidth onClick={() => setShowClientError(false)}>
+              OK
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-900">Despacho</h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={X}
+          <div className="flex items-center gap-2">
+            <Truck className="w-5 h-5 text-blue-600" />
+            <h3 className="text-xl font-semibold text-gray-900">Despacho</h3>
+          </div>
+          <button
             onClick={onClose}
-          />
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
         <div className="flex h-[calc(90vh-80px)]">
@@ -79,6 +102,14 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
                 icon={Search}
                 iconPosition="left"
               />
+            </div>
+
+            {/* Available Documents Section */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm font-medium text-blue-800">Documentos disponibles</span>
+              </div>
+              <div className="text-xs text-blue-600">Ingresa aquí el número de documento</div>
             </div>
 
             {/* Mock Product */}
@@ -106,15 +137,6 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
 
           {/* Right Panel - Delivery Details */}
           <div className="w-96 p-6">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Truck className="w-8 h-8 text-blue-600" />
-              </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                Documentos disponibles
-              </h4>
-            </div>
-
             {/* Client Selection */}
             <div className="mb-6">
               {selectedClient ? (
@@ -136,14 +158,26 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
                   </div>
                 </div>
               ) : (
-                <Button
-                  variant="outline"
-                  fullWidth
-                  icon={Plus}
-                  onClick={() => setShowClientModal(true)}
-                >
-                  Registrar nuevo cliente
-                </Button>
+                <div className="space-y-3">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <User className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-800">Clientes</span>
+                    </div>
+                    <Input
+                      placeholder="Cliente"
+                      icon={Search}
+                      iconPosition="left"
+                    />
+                  </div>
+                  <Button
+                    variant="primary"
+                    fullWidth
+                    onClick={() => setShowClientModal(true)}
+                  >
+                    Registrar nuevo cliente
+                  </Button>
+                </div>
               )}
             </div>
 
@@ -152,12 +186,14 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
-                  <input
-                    type="date"
-                    value={deliveryData.fecha}
-                    onChange={(e) => setDeliveryData(prev => ({ ...prev, fecha: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="date"
+                      value="2025-05-19"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
@@ -199,7 +235,13 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
               </div>
 
               <Input
-                label="Número documento"
+                label="Región"
+                value={deliveryData.region}
+                onChange={(value) => setDeliveryData(prev => ({ ...prev, region: value }))}
+              />
+
+              <Input
+                label="Núm. documento"
                 value={deliveryData.numeroDocumento}
                 onChange={(value) => setDeliveryData(prev => ({ ...prev, numeroDocumento: value }))}
               />

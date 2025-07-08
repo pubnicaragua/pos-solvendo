@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { BarChart3, Filter, X, Download, RefreshCw } from 'lucide-react'
+import { BarChart3, Filter, X, Download, RefreshCw, Calendar } from 'lucide-react'
 import { Button } from '../common/Button'
 
 interface ReportsModalProps {
@@ -12,6 +12,7 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({
   onClose
 }) => {
   const [showFilters, setShowFilters] = useState(false)
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false)
   const [selectedFilters, setSelectedFilters] = useState({
     caja1: true,
     caja2: true,
@@ -36,11 +37,46 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({
     ticketPromedio: 67750
   }
 
+  const handleDownload = () => {
+    setShowDownloadDialog(true)
+  }
+
+  const handleConfirmDownload = () => {
+    console.log('Downloading report...')
+    setShowDownloadDialog(false)
+  }
+
+  if (showDownloadDialog) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+          <div className="p-6 text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Última actualización</h3>
+            <p className="text-gray-600 mb-4">Fecha: 20/05/2025</p>
+            <p className="text-gray-600 mb-6">Hora: 21:19:50</p>
+            
+            <div className="flex gap-3">
+              <Button variant="outline" fullWidth onClick={() => setShowDownloadDialog(false)}>
+                Cancelar
+              </Button>
+              <Button fullWidth onClick={handleConfirmDownload}>
+                Realizar nueva actualización
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-900">Reportes</h3>
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-blue-600" />
+            <h3 className="text-xl font-semibold text-gray-900">Reportes</h3>
+          </div>
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
@@ -57,12 +93,12 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({
             >
               Actualizar
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              icon={X}
+            <button
               onClick={onClose}
-            />
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
         </div>
 
@@ -140,6 +176,7 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({
             <Button
               variant="primary"
               icon={Download}
+              onClick={handleDownload}
             >
               Realizar nueva actualización
             </Button>
@@ -150,13 +187,16 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({
         {showFilters && (
           <div className="absolute top-0 right-0 w-80 h-full bg-white border-l border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h4 className="text-lg font-semibold text-gray-900">Filtros</h4>
-              <Button
-                variant="ghost"
-                size="sm"
-                icon={X}
+              <div className="flex items-center gap-2">
+                <Filter className="w-5 h-5 text-blue-600" />
+                <h4 className="text-lg font-semibold text-gray-900">Filtros</h4>
+              </div>
+              <button
                 onClick={() => setShowFilters(false)}
-              />
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </div>
 
             <div className="space-y-4">
@@ -165,7 +205,7 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({
                 <div className="flex items-center gap-2 mb-4">
                   <input
                     type="date"
-                    defaultValue="2025-12-01"
+                    defaultValue="2025-01-01"
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   />
                   <span className="text-gray-500">-</span>
