@@ -16,8 +16,8 @@ export const ClientModal: React.FC<ClientModalProps> = ({
   onClose,
   onClientSelect
 }) => {
-  const [searchTerm, setSearchTerm] = useState('')
   const [showNewClientForm, setShowNewClientForm] = useState(false)
+  const [clientType, setClientType] = useState<'empresa' | 'persona'>('empresa')
   const [newClient, setNewClient] = useState({
     razon_social: '',
     rut: '',
@@ -33,11 +33,6 @@ export const ClientModal: React.FC<ClientModalProps> = ({
   const { clientes, crearCliente } = usePOS()
 
   if (!isOpen) return null
-
-  const filteredClientes = clientes.filter(cliente =>
-    cliente.razon_social.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.rut.toLowerCase().includes(searchTerm.toLowerCase())
-  )
 
   const handleCreateClient = async () => {
     if (!newClient.razon_social || !newClient.rut) return
@@ -58,157 +53,146 @@ export const ClientModal: React.FC<ClientModalProps> = ({
     onClose()
   }
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-900">Seleccionar cliente</h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={X}
-            onClick={onClose}
-          />
-        </div>
-
-        {!showNewClientForm ? (
-          <>
-            {/* Search and Actions */}
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <Input
-                    placeholder="Buscar por nombre o RUT..."
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    icon={Search}
-                    iconPosition="left"
-                  />
-                </div>
-                <Button
-                  variant="outline"
-                  icon={Plus}
-                  onClick={() => setShowNewClientForm(true)}
-                >
-                  Nuevo cliente
-                </Button>
-              </div>
+  if (showNewClientForm) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-600" />
+              <h3 className="text-xl font-semibold text-gray-900">Registrar nuevo cliente</h3>
             </div>
+            <button
+              onClick={() => setShowNewClientForm(false)}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
 
-            {/* Client List */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="space-y-3">
-                {/* Anonymous Client Option */}
-                <button
-                  onClick={() => handleClientSelect(null as any)}
-                  className="w-full p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-gray-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">Cliente anónimo</h4>
-                      <p className="text-sm text-gray-600">Sin datos de cliente</p>
-                    </div>
-                  </div>
-                </button>
-
-                {filteredClientes.map((cliente) => (
-                  <button
-                    key={cliente.id}
-                    onClick={() => handleClientSelect(cliente)}
-                    className="w-full p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{cliente.razon_social}</h4>
-                        <p className="text-sm text-gray-600">RUT: {cliente.rut}</p>
-                        {cliente.email && (
-                          <p className="text-sm text-gray-500">{cliente.email}</p>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-
-                {filteredClientes.length === 0 && searchTerm && (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">No se encontraron clientes</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </>
-        ) : (
-          /* New Client Form */
           <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h4 className="text-lg font-medium text-gray-900">Registrar nuevo cliente</h4>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowNewClientForm(false)}
-              >
-                Volver
-              </Button>
+            {/* Client Type Selection */}
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Tipo de Cliente</h4>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="clientType"
+                    value="empresa"
+                    checked={clientType === 'empresa'}
+                    onChange={(e) => setClientType(e.target.value as 'empresa')}
+                    className="text-blue-600"
+                  />
+                  <span>Empresas</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="clientType"
+                    value="persona"
+                    checked={clientType === 'persona'}
+                    onChange={(e) => setClientType(e.target.value as 'persona')}
+                    className="text-blue-600"
+                  />
+                  <span>Persona</span>
+                </label>
+              </div>
             </div>
 
+            {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <Input
-                label="Razón social"
-                value={newClient.razon_social}
-                onChange={(value) => setNewClient(prev => ({ ...prev, razon_social: value }))}
-                placeholder="Nombre de la empresa"
-                required
-              />
-              <Input
-                label="RUT"
-                value={newClient.rut}
-                onChange={(value) => setNewClient(prev => ({ ...prev, rut: value }))}
-                placeholder="12.345.678-9"
-                required
-              />
-              <Input
-                label="Giro"
-                value={newClient.giro}
-                onChange={(value) => setNewClient(prev => ({ ...prev, giro: value }))}
-                placeholder="Actividad comercial"
-              />
-              <Input
-                label="Teléfono"
-                value={newClient.telefono}
-                onChange={(value) => setNewClient(prev => ({ ...prev, telefono: value }))}
-                placeholder="+56 9 1234 5678"
-              />
-              <Input
-                label="Email"
-                type="email"
-                value={newClient.email}
-                onChange={(value) => setNewClient(prev => ({ ...prev, email: value }))}
-                placeholder="contacto@empresa.cl"
-              />
-              <Input
-                label="Contacto"
-                value={newClient.contacto}
-                onChange={(value) => setNewClient(prev => ({ ...prev, contacto: value }))}
-                placeholder="Nombre del contacto"
-              />
-              <Input
-                label="Dirección"
-                value={newClient.direccion}
-                onChange={(value) => setNewClient(prev => ({ ...prev, direccion: value }))}
-                placeholder="Dirección completa"
-              />
-              <Input
-                label="Comuna"
-                value={newClient.comuna}
-                onChange={(value) => setNewClient(prev => ({ ...prev, comuna: value }))}
-                placeholder="Comuna"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cliente Extranjero</label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                  <option>No</option>
+                  <option>Sí</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">RUT</label>
+                <input
+                  type="text"
+                  value={newClient.rut}
+                  onChange={(e) => setNewClient(prev => ({ ...prev, rut: e.target.value }))}
+                  placeholder="No"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Razón Social</label>
+                <input
+                  type="text"
+                  value={newClient.razon_social}
+                  onChange={(e) => setNewClient(prev => ({ ...prev, razon_social: e.target.value }))}
+                  placeholder="Giro"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Giro</label>
+                <input
+                  type="text"
+                  value={newClient.giro}
+                  onChange={(e) => setNewClient(prev => ({ ...prev, giro: e.target.value }))}
+                  placeholder="Giro"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
+                <input
+                  type="text"
+                  value={newClient.contacto}
+                  onChange={(e) => setNewClient(prev => ({ ...prev, contacto: e.target.value }))}
+                  placeholder="Nombres"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
+                <input
+                  type="text"
+                  placeholder="Apellidos"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Más atributos</label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                  <option>Seleccionar</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                <input
+                  type="text"
+                  value={newClient.direccion}
+                  onChange={(e) => setNewClient(prev => ({ ...prev, direccion: e.target.value }))}
+                  placeholder="Dirección"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Comuna</label>
+                <input
+                  type="text"
+                  value={newClient.comuna}
+                  onChange={(e) => setNewClient(prev => ({ ...prev, comuna: e.target.value }))}
+                  placeholder="Comuna"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+                <input
+                  type="text"
+                  value={newClient.ciudad}
+                  onChange={(e) => setNewClient(prev => ({ ...prev, ciudad: e.target.value }))}
+                  placeholder="Ciudad"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
             </div>
 
             <div className="flex gap-3">
@@ -230,7 +214,44 @@ export const ClientModal: React.FC<ClientModalProps> = ({
               </Button>
             </div>
           </div>
-        )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-600" />
+            <h3 className="text-xl font-semibold text-gray-900">Clientes</h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="p-6">
+          <div className="mb-4">
+            <Input
+              placeholder="Cliente"
+              icon={Search}
+              iconPosition="left"
+            />
+          </div>
+
+          <Button
+            fullWidth
+            variant="primary"
+            onClick={() => setShowNewClientForm(true)}
+          >
+            Registrar nuevo cliente
+          </Button>
+        </div>
       </div>
     </div>
   )

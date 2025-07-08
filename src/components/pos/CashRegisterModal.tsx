@@ -42,69 +42,39 @@ export const CashRegisterModal: React.FC<CashRegisterModalProps> = ({
   }
 
   const isOpenCash = type === 'open'
-  const title = isOpenCash ? 'Efectivo inicial' : 'Cierre de caja'
-  const subtitle = isOpenCash 
-    ? 'Ingresa el monto inicial de efectivo' 
-    : 'Confirma el cierre de caja del día'
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-        <div className="text-center mb-6">
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+        <div className="p-6 text-center">
           <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-            {isOpenCash ? (
-              <DollarSign className="w-8 h-8 text-blue-600" />
-            ) : (
-              <Calculator className="w-8 h-8 text-blue-600" />
-            )}
+            <DollarSign className="w-8 h-8 text-blue-600" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
-          <p className="text-gray-600">{subtitle}</p>
-        </div>
+          
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            {isOpenCash ? 'Efectivo inicial' : 'Cierre de caja'}
+          </h3>
+          
+          <p className="text-gray-600 mb-6">
+            {isOpenCash ? 'Ingresa efectivo...' : 'Confirma el cierre de caja del día'}
+          </p>
 
-        {isOpenCash && (
-          <div className="mb-6">
-            <Input
-              label="Ingreso efectivo"
-              type="number"
-              value={amount}
-              onChange={setAmount}
-              placeholder="0"
-              icon={DollarSign}
-              iconPosition="left"
-              required
-              autoFocus
-            />
-          </div>
-        )}
-
-        {!isOpenCash && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <div className="text-center">
-              <p className="text-sm text-gray-600 mb-2">Fecha del cierre</p>
-              <p className="text-lg font-semibold text-gray-900">
-                {new Date().toLocaleDateString('es-CL', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
+          {isOpenCash && (
+            <div className="mb-6">
+              <Input
+                type="number"
+                value={amount}
+                onChange={setAmount}
+                placeholder="0"
+                className="text-center text-lg"
+                autoFocus
+              />
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            fullWidth
-            onClick={onClose}
-            disabled={loading}
-          >
-            Cancelar
-          </Button>
           <Button
             fullWidth
+            size="lg"
             onClick={handleSubmit}
             loading={loading}
             disabled={isOpenCash && !amount}
