@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { ShoppingCart, Search, Users, Star, Calendar, X, Plus, Minus } from 'lucide-react'
 import { POSLayout } from '../components/pos/POSLayout'
-import { Button } from '../common/Button'
-import { Input } from '../common/Input'
+import { Button } from '../components/common/Button'
+import { Input } from '../components/common/Input'
 import { PaymentModal } from '../components/pos/PaymentModal'
 import { ClientModal } from '../components/pos/ClientModal'
 import { ReceiptModal } from '../components/pos/ReceiptModal'
 import { CashCloseModal } from '../components/pos/CashCloseModal'
 import { ReturnsModal } from '../components/pos/ReturnsModal'
 import { CashRegisterModal } from '../components/pos/CashRegisterModal'
+import { CashMovementModal } from '../components/pos/CashMovementModal'
+import { ReprintModal } from '../components/pos/ReprintModal'
+import { ReportsModal } from '../components/pos/ReportsModal'
+import { DeliveryModal } from '../components/pos/DeliveryModal'
 import { usePOS } from '../contexts/POSContext'
 import { Cliente, Venta } from '../lib/supabase'
 
@@ -20,6 +24,10 @@ export const Dashboard: React.FC = () => {
   const [showCashCloseModal, setShowCashCloseModal] = useState(false)
   const [showReturnsModal, setShowReturnsModal] = useState(false)
   const [showCashModal, setShowCashModal] = useState(false)
+  const [showCashMovementModal, setShowCashMovementModal] = useState(false)
+  const [showReprintModal, setShowReprintModal] = useState(false)
+  const [showReportsModal, setShowReportsModal] = useState(false)
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null)
   const [lastVenta, setLastVenta] = useState<Venta | null>(null)
   const [activeTab, setActiveTab] = useState<'destacados' | 'borradoras' | 'productos' | 'clientes'>('destacados')
@@ -439,6 +447,26 @@ export const Dashboard: React.FC = () => {
         isOpen={showCashModal}
         onClose={() => setShowCashModal(false)}
         type="open"
+      />
+
+      <CashMovementModal
+        isOpen={showCashMovementModal}
+        onClose={() => setShowCashMovementModal(false)}
+      />
+
+      <ReprintModal
+        isOpen={showReprintModal}
+        onClose={() => setShowReprintModal(false)}
+      />
+
+      <ReportsModal
+        isOpen={showReportsModal}
+        onClose={() => setShowReportsModal(false)}
+      />
+
+      <DeliveryModal
+        isOpen={showDeliveryModal}
+        onClose={() => setShowDeliveryModal(false)}
       />
     </POSLayout>
   )
