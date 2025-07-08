@@ -16,6 +16,7 @@ interface POSLayoutProps {
 }
 
 export const POSLayout: React.FC<POSLayoutProps> = ({ children }) => {
+  const [showSidebar, setShowSidebar] = useState(false)
   const [showCashModal, setShowCashModal] = useState(false)
   const [showCashCloseModal, setShowCashCloseModal] = useState(false)
   const [showCashMovementModal, setShowCashMovementModal] = useState(false)
@@ -44,6 +45,13 @@ export const POSLayout: React.FC<POSLayoutProps> = ({ children }) => {
     minute: '2-digit'
   })
 
+  const menuItems = [
+    { icon: TrendingUp, label: 'Movimiento', onClick: () => setShowCashMovementModal(true) },
+    { icon: Printer, label: 'Reimprimir', onClick: () => setShowReprintModal(true) },
+    { icon: FileText, label: 'Reportes', onClick: () => setShowReportsModal(true) },
+    { icon: Truck, label: 'Despacho', onClick: () => setShowDeliveryModal(true) }
+  ]
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -51,10 +59,13 @@ export const POSLayout: React.FC<POSLayoutProps> = ({ children }) => {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowSidebar(!showSidebar)}
+                className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded-lg transition-colors"
+              >
                 <Menu className="w-6 h-6 text-gray-600" />
                 <span className="text-xl font-semibold text-gray-900">POS</span>
-              </div>
+              </button>
               <Logo size="md" />
             </div>
 
@@ -62,42 +73,6 @@ export const POSLayout: React.FC<POSLayoutProps> = ({ children }) => {
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Clock className="w-4 h-4" />
                 <span>{currentTime}</span>
-              </div>
-
-              {/* Additional Actions */}
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={TrendingUp}
-                  onClick={() => setShowCashMovementModal(true)}
-                >
-                  Movimiento
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={Printer}
-                  onClick={() => setShowReprintModal(true)}
-                >
-                  Reimprimir
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={FileText}
-                  onClick={() => setShowReportsModal(true)}
-                >
-                  Reportes
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={Truck}
-                  onClick={() => setShowDeliveryModal(true)}
-                >
-                  Despacho
-                </Button>
               </div>
 
               <div className="flex items-center gap-2">
@@ -128,8 +103,7 @@ export const POSLayout: React.FC<POSLayoutProps> = ({ children }) => {
                     <User className="w-4 h-4 text-gray-600" />
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium text-gray-900">{user?.nombre}</p>
-                  <p className="font-medium text-gray-900">{user?.nombre} {user?.apellidos}</p>
+                    <p className="font-medium text-gray-900">{user?.nombre} {user?.apellidos}</p>
                   </div>
                 </div>
                 
@@ -146,6 +120,43 @@ export const POSLayout: React.FC<POSLayoutProps> = ({ children }) => {
           </div>
         </div>
       </header>
+
+      {/* Sidebar */}
+      {showSidebar && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setShowSidebar(false)} />
+          <div className="relative bg-white w-80 shadow-xl">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Módulos</h2>
+                <button
+                  onClick={() => setShowSidebar(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="space-y-2">
+                {menuItems.map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      item.onClick()
+                      setShowSidebar(false)
+                    }}
+                    className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <item.icon className="w-5 h-5 text-gray-600" />
+                    <span className="font-medium text-gray-900">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="flex-1">
