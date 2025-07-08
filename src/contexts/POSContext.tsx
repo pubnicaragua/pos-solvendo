@@ -138,7 +138,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }
 
   const openCaja = async (montoInicial: number): Promise<boolean> => {
-    if (!cajaActual || !empresaId || !sucursalId || !user) return false
+    if (!empresaId || !sucursalId || !user) return false
 
     try {
       const { error } = await supabase

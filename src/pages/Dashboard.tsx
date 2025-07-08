@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ShoppingCart, Search, Grid3X3, Users, Star, Trash2, RotateCcw, Calendar } from 'lucide-react'
+import { ShoppingCart, Search, Users, Star, Trash2, RotateCcw, Calendar } from 'lucide-react'
 import { POSLayout } from '../components/pos/POSLayout'
 import { Button } from '../components/common/Button'
 import { Input } from '../components/common/Input'
@@ -94,19 +94,19 @@ export const Dashboard: React.FC = () => {
             <div className="flex gap-4 mb-4">
               <div className="flex-1">
                 <Input
-                  placeholder="Buscar productos por nombre o código..."
+                  placeholder="Ingresa aquí el producto o servicio..."
                   value={searchTerm}
                   onChange={setSearchTerm}
                   icon={Search}
                   iconPosition="left"
                 />
               </div>
-              <Button variant="outline" icon={Grid3X3}>
+              <Button variant="outline" size="sm">
                 Categorías
               </Button>
               <Button 
                 variant="outline" 
-                icon={RotateCcw}
+                size="sm"
                 onClick={() => setShowReturnsModal(true)}
               >
                 Devoluciones
