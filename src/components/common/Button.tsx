@@ -28,22 +28,22 @@ export const Button: React.FC<ButtonProps> = ({
   type = 'button',
   className = ''
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
+  const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2';
   
   const variantClasses = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 active:bg-blue-800 shadow-sm',
+    primary: 'bg-primary text-white hover:bg-primary-dark focus:ring-primary shadow-card',
     secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500 active:bg-gray-800 shadow-sm',
-    outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-blue-500 active:bg-gray-100',
-    ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-blue-500 active:bg-gray-200',
+    outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-primary active:bg-gray-100',
+    ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-primary active:bg-gray-200',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 active:bg-red-800 shadow-sm'
-  }
+  };
 
   const sizeClasses = {
-    sm: 'px-3 py-2 text-sm gap-1.5 min-h-[36px]',
-    md: 'px-4 py-2.5 text-sm gap-2 min-h-[40px]',
-    lg: 'px-6 py-3 text-base gap-2 min-h-[48px]',
-    xl: 'px-8 py-4 text-lg gap-3 min-h-[56px]'
-  }
+    sm: 'px-4 py-2 text-sm gap-2 min-h-[40px]',
+    md: 'px-5 py-2.5 text-base gap-2 min-h-[48px]',
+    lg: 'px-7 py-3 text-lg gap-3 min-h-[56px]',
+    xl: 'px-9 py-4 text-xl gap-3 min-h-[64px]'
+  };
 
   const disabledClasses = 'opacity-50 cursor-not-allowed'
   const loadingClasses = 'cursor-wait'
@@ -73,15 +73,15 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled || loading}
     >
       {loading ? (
-        <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
+        <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent" />
       ) : Icon && iconPosition === 'left' ? (
-        <Icon size={size === 'sm' ? 16 : size === 'lg' ? 20 : size === 'xl' ? 24 : 18} />
+        <Icon size={size === 'sm' ? 18 : size === 'lg' ? 24 : size === 'xl' ? 28 : 20} />
       ) : null}
       
       {children}
       
       {!loading && Icon && iconPosition === 'right' && (
-        <Icon size={size === 'sm' ? 16 : size === 'lg' ? 20 : size === 'xl' ? 24 : 18} />
+        <Icon size={size === 'sm' ? 18 : size === 'lg' ? 24 : size === 'xl' ? 28 : 20} />
       )}
     </button>
   )
