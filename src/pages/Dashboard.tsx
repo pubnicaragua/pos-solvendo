@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Search, X, Plus, Minus, Menu, Star, FileText, Package, Users } from 'lucide-react'
+import { Search, X, Plus, Minus, Menu, Star, FileText, Package, Users, Gift } from 'lucide-react'
 import { Logo } from '../components/common/Logo'
 import { PaymentModal } from '../components/pos/PaymentModal'
 import { ClientModal } from '../components/pos/ClientModal'
@@ -7,9 +7,13 @@ import { ReceiptModal } from '../components/pos/ReceiptModal'
 import { CashCloseModal } from '../components/pos/CashCloseModal'
 import { ReturnsModal } from '../components/pos/ReturnsModal'
 import { CashRegisterModal } from '../components/pos/CashRegisterModal'
+import { CashMovementModal } from '../components/pos/CashMovementModal'
+import { ReprintModal } from '../components/pos/ReprintModal'
+import { ReportsModal } from '../components/pos/ReportsModal'
+import { DeliveryModal } from '../components/pos/DeliveryModal'
 import { usePOS } from '../contexts/POSContext'
 import { useAuth } from '../contexts/AuthContext'
-import { Cliente, Venta } from '../lib/supabase'
+import { Cliente, Venta, Producto } from '../lib/supabase'
 
 export const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -19,15 +23,22 @@ export const Dashboard: React.FC = () => {
   const [showCashCloseModal, setShowCashCloseModal] = useState(false)
   const [showReturnsModal, setShowReturnsModal] = useState(false)
   const [showCashModal, setShowCashModal] = useState(false)
+  const [showCashMovementModal, setShowCashMovementModal] = useState(false)
+  const [showReprintModal, setShowReprintModal] = useState(false)
+  const [showReportsModal, setShowReportsModal] = useState(false)
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false)
+  const [showSidebar, setShowSidebar] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null)
   const [lastVenta, setLastVenta] = useState<Venta | null>(null)
-  const [activeTab, setActiveTab] = useState<'destacados' | 'borradoras' | 'productos' | 'clientes'>('destacados')
+  const [activeTab, setActiveTab] = useState<'destacados' | 'promociones' | 'borradoras' | 'productos' | 'clientes'>('destacados')
   
   const {
     productos,
+    promociones,
     carrito,
     cajaAbierta,
     loadProductos,
+    loadPromociones,
     addToCart,
     updateCartItem,
     removeFromCart,
@@ -40,6 +51,7 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadProductos()
+    loadPromociones()
   }, [])
 
   useEffect(() => {
@@ -52,6 +64,8 @@ export const Dashboard: React.FC = () => {
     producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     producto.codigo.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const productosDestacados = productos.filter(producto => producto.destacado)
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CL', {
@@ -86,6 +100,14 @@ export const Dashboard: React.FC = () => {
     setSelectedClient(cliente)
   }
 
+  const menuItems = [
+    { icon: Package, label: 'Movimiento', onClick: () => setShowCashMovementModal(true) },
+    { icon: FileText, label: 'Reimprimir', onClick: () => setShowReprintModal(true) },
+    { icon: Star, label: 'Reportes', onClick: () => setShowReportsModal(true) },
+    { icon: Package, label: 'Despacho', onClick: () => setShowDeliveryModal(true) },
+    { icon: X, label: 'Devolución', onClick: () => setShowReturnsModal(true) }
+  ]
+
   const currentTime = new Date().toLocaleTimeString('es-CL', {
     hour: '2-digit',
     minute: '2-digit'
@@ -99,7 +121,8 @@ export const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded-lg transition-colors">
-                <Menu className="w-6 h-6 text-gray-600" />
+                onClick={() => setShowSidebar(!showSidebar)}
+                className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded-lg transition-colors"
                 <span className="text-xl font-semibold text-gray-900">POS</span>
               </button>
               <Logo size="md" />
@@ -124,6 +147,43 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {/* Sidebar */}
+      {showSidebar && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setShowSidebar(false)} />
+          <div className="relative bg-white w-80 shadow-xl">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Módulos</h2>
+                <button
+                  onClick={() => setShowSidebar(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="space-y-2">
+                {menuItems.map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      item.onClick()
+                      setShowSidebar(false)
+                    }}
+                    className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <item.icon className="w-5 h-5 text-gray-600" />
+                    <span className="font-medium text-gray-900">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex h-[calc(100vh-80px)]">
         {/* Left Panel - Products */}
@@ -156,7 +216,7 @@ export const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  {filteredProductos.slice(0, 3).map((producto) => (
+                  {(searchTerm ? filteredProductos : productosDestacados).slice(0, 10).map((producto) => (
                     <div key={producto.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
@@ -164,7 +224,7 @@ export const Dashboard: React.FC = () => {
                         </div>
                         <div>
                           <div className="font-medium text-sm">{producto.nombre}</div>
-                          <div className="text-xs text-gray-500">Stock: 100 unidades</div>
+                          <div className="text-xs text-gray-500">Stock: {producto.stock || 0} unidades</div>
                           <div className="text-xs text-gray-500">SKU: {producto.codigo}</div>
                         </div>
                       </div>
@@ -179,6 +239,36 @@ export const Dashboard: React.FC = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'promociones' && (
+              <div className="p-4">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Gift className="w-4 h-4 text-green-600" />
+                    <span className="text-sm font-medium text-green-800">Promociones activas</span>
+                  </div>
+                  <div className="text-xs text-green-600">Promociones disponibles: {promociones.length}</div>
+                </div>
+                
+                <div className="space-y-3">
+                  {promociones.map((promocion) => (
+                    <div key={promocion.id} className="p-3 bg-white border border-gray-200 rounded-lg">
+                      <div className="font-medium text-sm text-green-800">{promocion.nombre}</div>
+                      <div className="text-xs text-gray-500 mt-1">{promocion.descripcion}</div>
+                      <div className="text-xs text-green-600 mt-1">
+                        Tipo: {promocion.tipo} {promocion.valor && `- ${promocion.valor}${promocion.tipo.includes('porcentaje') ? '%' : '$'}`}
+                      </div>
+                    </div>
+                  ))}
+                  {promociones.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <Gift className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                      <p>No hay promociones activas</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -266,6 +356,15 @@ export const Dashboard: React.FC = () => {
               >
                 <Star className="w-5 h-5" />
                 <span className="text-xs">Destacado</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('promociones')}
+                className={`flex flex-col items-center gap-1 p-3 rounded-lg transition-colors ${
+                  activeTab === 'promociones' ? 'bg-green-100 text-green-600' : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Gift className="w-5 h-5" />
+                <span className="text-xs">Promociones</span>
               </button>
               <button
                 onClick={() => setActiveTab('borradoras')}
@@ -438,6 +537,26 @@ export const Dashboard: React.FC = () => {
         isOpen={showCashModal}
         onClose={() => setShowCashModal(false)}
         type="open"
+      />
+
+      <CashMovementModal
+        isOpen={showCashMovementModal}
+        onClose={() => setShowCashMovementModal(false)}
+      />
+
+      <ReprintModal
+        isOpen={showReprintModal}
+        onClose={() => setShowReprintModal(false)}
+      />
+
+      <ReportsModal
+        isOpen={showReportsModal}
+        onClose={() => setShowReportsModal(false)}
+      />
+
+      <DeliveryModal
+        isOpen={showDeliveryModal}
+        onClose={() => setShowDeliveryModal(false)}
       />
     </div>
   )
