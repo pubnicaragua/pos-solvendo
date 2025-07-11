@@ -48,7 +48,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const validateUser = async (rut: string, password: string): Promise<{ success: boolean; user?: Usuario; error?: string }> => {
     try {
-      // Validate user credentials
+      console.log('Validating user with RUT:', rut)
+      
       const { data: usuario, error } = await supabase
         .from('usuarios')
         .select('*')
@@ -56,13 +57,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('activo', true)
         .single()
 
+      console.log('User query result:', { usuario, error })
+
       if (error || !usuario) {
+        console.error('User not found or error:', error)
         return { success: false, error: 'Usuario no encontrado o inactivo' }
       }
 
-      // In a real app, you would verify the password hash here
-      // For now, we'll use a simple check
-      if (password !== 'demo123') {
+      // Simple password validation for demo
+      if (password !== '123456') {
         return { success: false, error: 'Contraseña incorrecta' }
       }
 
@@ -76,12 +79,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (rut: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true)
+      console.log('Starting login process for RUT:', rut)
       
       // Validate user
       const userResult = await validateUser(rut, password)
       if (!userResult.success || !userResult.user) {
+        console.error('User validation failed:', userResult.error)
         return { success: false, error: userResult.error }
       }
+
+      console.log('User validated successfully:', userResult.user)
 
       // Get empresa and sucursal from usuario_empresa
       const { data: usuarioEmpresa, error: empresaError } = await supabase
@@ -91,8 +98,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('activo', true)
         .single()
 
+      console.log('Usuario empresa query result:', { usuarioEmpresa, empresaError })
+
       if (empresaError || !usuarioEmpresa) {
-        return { success: false, error: 'Usuario no asignado a empresa/sucursal' }
+        console.error('Usuario empresa error:', empresaError)
+        return { success: false, error: 'Usuario no asignado a empresa/sucursal activa' }
       }
 
       // Set user data
@@ -106,6 +116,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('pos_empresa', usuarioEmpresa.empresa_id)
       localStorage.setItem('pos_sucursal', usuarioEmpresa.sucursal_id)
       localStorage.setItem('pos_role', usuarioEmpresa.rol)
+
+      console.log('Login successful, user data saved')
 
       return { success: true }
     } catch (error) {

@@ -4,10 +4,10 @@ import { Logo } from '../common/Logo'
 import { useAuth } from '../../contexts/AuthContext'
 
 export const LoginForm: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState<'login' | 'user_validation' | 'supervisor_auth'>('login')
+  const [currentStep, setCurrentStep] = useState<'login' | 'user_validation' | 'supervisor_auth'>('user_validation')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [userRut, setUserRut] = useState('')
+  const [userRut, setUserRut] = useState('78.168.951-3')
   const [userPassword, setUserPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
@@ -50,7 +50,7 @@ export const LoginForm: React.FC = () => {
     if (result.success && result.user) {
       setValidatedUser(result.user)
       // Proceed to cash opening - this will be handled by the parent component
-      const loginResult = await login(userRut, userPassword)
+      const loginResult = await login(userRut, userPassword) 
       if (!loginResult.success) {
         setError(loginResult.error || 'Error al iniciar sesión')
       }
@@ -58,6 +58,16 @@ export const LoginForm: React.FC = () => {
       setError(result.error || 'Credenciales inválidas')
     }
     
+    setLoading(false)
+  }
+
+  const handleMainLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    const result = await login(email, password)
+    if (!result.success) {
+      setError(result.error || 'Error al iniciar sesión')
+    }
     setLoading(false)
   }
 
@@ -91,7 +101,7 @@ export const LoginForm: React.FC = () => {
                   type="text"
                   value={userRut}
                   onChange={(e) => setUserRut(e.target.value)}
-                  placeholder="ID / RUT"
+                  placeholder="RUT (ej: 78.168.951-3)"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   autoFocus
                 />
@@ -102,7 +112,7 @@ export const LoginForm: React.FC = () => {
                   type={showPassword ? 'text' : 'password'}
                   value={userPassword}
                   onChange={(e) => setUserPassword(e.target.value)}
-                  placeholder="Contraseña"
+                  placeholder="Contraseña (123456)"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <button
@@ -191,7 +201,7 @@ export const LoginForm: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">Inicio sesión</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleMainLogin} className="space-y-6">
             <div>
               <input
                 type="email"
@@ -245,7 +255,7 @@ export const LoginForm: React.FC = () => {
           <div className="mt-6 text-center">
             <button
               onClick={() => setCurrentStep('supervisor_auth')}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className="text-blue-600 hover:text-blue-700 text-sm font-medium mr-4"
             >
               Autorización de Supervisor
             </button>
@@ -256,7 +266,7 @@ export const LoginForm: React.FC = () => {
         <div className="mt-6 text-center">
           <button
             onClick={() => setCurrentStep('user_validation')}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors mr-4"
           >
             Acceso de Usuario
             </button>

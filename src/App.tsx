@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { POSProvider } from './contexts/POSContext'
 import { LoginForm } from './components/auth/LoginForm'
 import { Dashboard } from './pages/Dashboard'
+import { POSLayout } from './components/pos/POSLayout'
 
 const AppRoutes: React.FC = () => {
   const { user, loading } = useAuth()
@@ -22,10 +23,12 @@ const AppRoutes: React.FC = () => {
 
   return (
     <POSProvider>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <POSLayout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </POSLayout>
     </POSProvider>
   )
 }

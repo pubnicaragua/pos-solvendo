@@ -384,6 +384,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const procesarVenta = async (clienteId: string | null, metodoPago: string, tipoDte: string): Promise<{ success: boolean; venta?: Venta; error?: string }> => {
     try {
       if (!empresaId || !sucursalId || !user || !aperturaActual) {
+        console.error('Missing session data:', { empresaId, sucursalId, user: !!user, aperturaActual: !!aperturaActual })
         return { success: false, error: 'Datos de sesión incompletos' }
       }
 
@@ -391,8 +392,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return { success: false, error: 'Carrito vacío' }
       }
 
-      // Find payment method
-      const medioPago = mediosPago.find(mp => mp.nombre.toLowerCase() === metodoPago.toLowerCase())
+      const medioPago = mediosPago.find(mp => mp.nombre.toLowerCase() === metodoPago.toLowerCase()) || mediosPago[0]
       if (!medioPago) {
         return { success: false, error: 'Método de pago no válido' }
       }
@@ -414,7 +414,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           usuario_id: user.id,
           folio,
           tipo_dte: tipoDte as 'boleta' | 'factura' | 'nota_credito',
-          metodo_pago_id: medioPago.id,
+          metodo_pago: metodoPago,
           subtotal,
           descuento: 0,
           impuestos: 0,
