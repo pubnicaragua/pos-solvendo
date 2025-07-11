@@ -50,19 +50,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Validating user with RUT:', rut)
       
-      const { data: usuario, error } = await supabase
+      const { data: usuarios, error } = await supabase
         .from('usuarios')
         .select('*')
         .eq('rut', rut)
         .eq('activo', true)
-        .single()
 
-      console.log('User query result:', { usuario, error })
+      console.log('User query result:', { usuarios, error })
 
-      if (error || !usuario) {
+      if (error || !usuarios || usuarios.length === 0) {
         console.error('User not found or error:', error)
         return { success: false, error: 'Usuario no encontrado o inactivo' }
       }
+
+      const usuario = usuarios[0]
 
       // Simple password validation for demo
       if (password !== '123456') {
@@ -91,19 +92,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('User validated successfully:', userResult.user)
 
       // Get empresa and sucursal from usuario_empresa
-      const { data: usuarioEmpresa, error: empresaError } = await supabase
+      const { data: usuarioEmpresas, error: empresaError } = await supabase
         .from('usuario_empresa')
         .select('empresa_id, sucursal_id, rol')
         .eq('usuario_id', userResult.user.id)
         .eq('activo', true)
-        .single()
 
-      console.log('Usuario empresa query result:', { usuarioEmpresa, empresaError })
+      console.log('Usuario empresa query result:', { usuarioEmpresas, empresaError })
 
-      if (empresaError || !usuarioEmpresa) {
+      if (empresaError || !usuarioEmpresas || usuarioEmpresas.length === 0) {
         console.error('Usuario empresa error:', empresaError)
         return { success: false, error: 'Usuario no asignado a empresa/sucursal activa' }
       }
+
+      const usuarioEmpresa = usuarioEmpresas[0]
 
       // Set user data
       setUser(userResult.user)

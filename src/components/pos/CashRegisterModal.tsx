@@ -56,7 +56,7 @@ export const CashRegisterModal: React.FC<CashRegisterModalProps> = ({
           </h3>
           
           <p className="text-gray-600 mb-6">
-            {isOpenCash ? 'Ingresa efectivo...' : 'Confirma el cierre de caja del día'}
+            {isOpenCash ? 'Ingresar efectivo...' : 'Confirma el cierre de caja del día'}
           </p>
 
           {isOpenCash && (

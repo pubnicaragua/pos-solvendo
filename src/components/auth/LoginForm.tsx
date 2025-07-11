@@ -4,7 +4,7 @@ import { Logo } from '../common/Logo'
 import { useAuth } from '../../contexts/AuthContext'
 
 export const LoginForm: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState<'login' | 'user_validation' | 'supervisor_auth'>('user_validation')
+  const [currentStep, setCurrentStep] = useState<'login' | 'user_validation' | 'supervisor_auth'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [userRut, setUserRut] = useState('78.168.951-3')
@@ -61,10 +61,25 @@ export const LoginForm: React.FC = () => {
     setLoading(false)
   }
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !password) {
+      setError('Por favor completa todos los campos')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    // For demo, redirect to user validation
+    setCurrentStep('user_validation')
+    setLoading(false)
+  }
+
   const handleMainLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const result = await login(email, password)
+    const result = await validateUser(email, password)
     if (!result.success) {
       setError(result.error || 'Error al iniciar sesión')
     }
@@ -74,8 +89,85 @@ export const LoginForm: React.FC = () => {
   const handleSupervisorAuth = () => {
     // Simulate supervisor authorization
     console.log('Supervisor authorization:', supervisorPassword)
-    setCurrentStep('login')
+    setCurrentStep('user_validation')
     setSupervisorPassword('')
+  }
+
+  // Main login screen (Inicio sesión)
+  if (currentStep === 'login') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <Logo size="lg" className="mx-auto mb-6" />
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">Inicio sesión</h2>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Correo"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  autoFocus
+                />
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Contraseña"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <label className="flex items-center">
+                  <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <span className="ml-2 text-gray-600">¿Olvidaste tu contraseña?</span>
+                </label>
+              </div>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={!email || !password || loading}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loading ? 'Ingresando...' : 'Ingresar'}
+              </button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setCurrentStep('supervisor_auth')}
+                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              >
+                Autorización de Supervisor
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // User validation screen (RUT and password before cash opening)
@@ -97,22 +189,24 @@ export const LoginForm: React.FC = () => {
 
             <form onSubmit={handleUserValidation} className="space-y-6">
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ID / RUT</label>
                 <input
                   type="text"
                   value={userRut}
                   onChange={(e) => setUserRut(e.target.value)}
-                  placeholder="RUT (ej: 78.168.951-3)"
+                  placeholder="78.168.951-3"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   autoFocus
                 />
               </div>
 
               <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={userPassword}
                   onChange={(e) => setUserPassword(e.target.value)}
-                  placeholder="Contraseña (123456)"
+                  placeholder="Contraseña"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <button
@@ -135,7 +229,7 @@ export const LoginForm: React.FC = () => {
                 disabled={!userRut || !userPassword || loading}
                 className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {loading ? 'Validando...' : 'Ingresar'}
+                {loading ? 'Ingresando...' : 'Ingresar'}
               </button>
             </form>
           </div>
@@ -159,6 +253,7 @@ export const LoginForm: React.FC = () => {
 
             <form onSubmit={(e) => { e.preventDefault(); handleSupervisorAuth(); }} className="space-y-6">
               <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Contraseña del Supervisor</label>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={supervisorPassword}
@@ -189,89 +284,4 @@ export const LoginForm: React.FC = () => {
       </div>
     )
   }
-
-  // Main login screen
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <Logo size="lg" className="mx-auto mb-6" />
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">Inicio sesión</h2>
-
-          <form onSubmit={handleMainLogin} className="space-y-6">
-            <div>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Correo"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                autoFocus
-              />
-            </div>
-
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Contraseña"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center">
-                <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                <span className="ml-2 text-gray-600">¿Olvidaste tu contraseña?</span>
-              </label>
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={!email || !password || loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {loading ? 'Ingresando...' : 'Ingresar'}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setCurrentStep('supervisor_auth')}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium mr-4"
-            >
-              Autorización de Supervisor
-            </button>
-          </div>
-        </div>
-
-        {/* User validation trigger */}
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => setCurrentStep('user_validation')}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors mr-4"
-          >
-            Acceso de Usuario
-            </button>
-        </div>
-      </div>
-    </div>
-  )
 }
