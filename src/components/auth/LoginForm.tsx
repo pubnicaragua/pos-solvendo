@@ -1,17 +1,20 @@
 import React, { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, User } from 'lucide-react'
 import { Logo } from '../common/Logo'
 import { useAuth } from '../../contexts/AuthContext'
 
 export const LoginForm: React.FC = () => {
+  const [currentStep, setCurrentStep] = useState<'login' | 'user_validation' | 'supervisor_auth'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [userRut, setUserRut] = useState('')
+  const [userPassword, setUserPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [showSupervisorAuth, setShowSupervisorAuth] = useState(false)
   const [supervisorPassword, setSupervisorPassword] = useState('')
-  const { login } = useAuth()
+  const [validatedUser, setValidatedUser] = useState<any>(null)
+  const { login, validateUser } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,14 +35,107 @@ export const LoginForm: React.FC = () => {
     setLoading(false)
   }
 
+  const handleUserValidation = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!userRut || !userPassword) {
+      setError('Por favor completa todos los campos')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    const result = await validateUser(userRut, userPassword)
+    
+    if (result.success && result.user) {
+      setValidatedUser(result.user)
+      // Proceed to cash opening - this will be handled by the parent component
+      const loginResult = await login(userRut, userPassword)
+      if (!loginResult.success) {
+        setError(loginResult.error || 'Error al iniciar sesión')
+      }
+    } else {
+      setError(result.error || 'Credenciales inválidas')
+    }
+    
+    setLoading(false)
+  }
+
   const handleSupervisorAuth = () => {
     // Simulate supervisor authorization
     console.log('Supervisor authorization:', supervisorPassword)
-    setShowSupervisorAuth(false)
+    setCurrentStep('login')
     setSupervisorPassword('')
   }
 
-  if (showSupervisorAuth) {
+  // User validation screen (RUT and password before cash opening)
+  if (currentStep === 'user_validation') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <Logo size="lg" className="mx-auto mb-6" />
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <div className="text-center mb-6">
+              <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                <User className="w-8 h-8 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Usuario</h2>
+            </div>
+
+            <form onSubmit={handleUserValidation} className="space-y-6">
+              <div>
+                <input
+                  type="text"
+                  value={userRut}
+                  onChange={(e) => setUserRut(e.target.value)}
+                  placeholder="ID / RUT"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  autoFocus
+                />
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={userPassword}
+                  onChange={(e) => setUserPassword(e.target.value)}
+                  placeholder="Contraseña"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={!userRut || !userPassword || loading}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loading ? 'Validando...' : 'Ingresar'}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Supervisor authorization screen
+  if (currentStep === 'supervisor_auth') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full">
@@ -84,6 +180,7 @@ export const LoginForm: React.FC = () => {
     )
   }
 
+  // Main login screen
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
@@ -147,7 +244,7 @@ export const LoginForm: React.FC = () => {
 
           <div className="mt-6 text-center">
             <button
-              onClick={() => setShowSupervisorAuth(true)}
+              onClick={() => setCurrentStep('supervisor_auth')}
               className="text-blue-600 hover:text-blue-700 text-sm font-medium"
             >
               Autorización de Supervisor
@@ -155,50 +252,14 @@ export const LoginForm: React.FC = () => {
           </div>
         </div>
 
-        {/* User Registration Modal Trigger */}
+        {/* User validation trigger */}
         <div className="mt-6 text-center">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Usuario</h3>
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="ID / RUT"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <div className="relative">
-                <input
-                  type="password"
-                  placeholder="Contraseña"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <Eye size={20} />
-                </button>
-              </div>
-              <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                Ingresar
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Cash Opening Modal */}
-        <div className="mt-6">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 text-center">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Efectivo inicial</h3>
-            <p className="text-gray-600 mb-4">Ingresar efectivo...</p>
-            <input
-              type="number"
-              placeholder="0"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center mb-4"
-            />
-            <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-              Aperturar
+          <button
+            onClick={() => setCurrentStep('user_validation')}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            Acceso de Usuario
             </button>
-          </div>
         </div>
       </div>
     </div>

@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase, Usuario } from '../lib/supabase'
+import { supabase, Usuario, UsuarioEmpresa } from '../lib/supabase'
 
 interface AuthContextType {
   user: Usuario | null
   loading: boolean
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  login: (rut: string, password: string) => Promise<{ success: boolean; error?: string }>
+  validateUser: (rut: string, password: string) => Promise<{ success: boolean; user?: Usuario; error?: string }>
   logout: () => Promise<void>
   empresaId: string | null
   sucursalId: string | null
+  userRole: string | null
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -25,71 +27,87 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true)
   const [empresaId, setEmpresaId] = useState<string | null>(null)
   const [sucursalId, setSucursalId] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
 
   useEffect(() => {
-    checkUser()
+    // Check if user is already logged in from localStorage
+    const savedUser = localStorage.getItem('pos_user')
+    const savedEmpresa = localStorage.getItem('pos_empresa')
+    const savedSucursal = localStorage.getItem('pos_sucursal')
+    const savedRole = localStorage.getItem('pos_role')
+    
+    if (savedUser && savedEmpresa && savedSucursal) {
+      setUser(JSON.parse(savedUser))
+      setEmpresaId(savedEmpresa)
+      setSucursalId(savedSucursal)
+      setUserRole(savedRole)
+    }
+    
+    setLoading(false)
   }, [])
 
-  const checkUser = async () => {
+  const validateUser = async (rut: string, password: string): Promise<{ success: boolean; user?: Usuario; error?: string }> => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (session?.user) {
-        const { data: usuario, error } = await supabase
-          .from('usuarios')
-          .select('*')
-          .eq('email', session.user.email)
-          .single()
+      // Validate user credentials
+      const { data: usuario, error } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('rut', rut)
+        .eq('activo', true)
+        .single()
 
-        if (usuario && !error) {
-          setUser(usuario)
-          
-          // Get empresa and sucursal from usuario_empresa
-          const { data: usuarioEmpresa } = await supabase
-            .from('usuario_empresa')
-            .select('empresa_id, sucursal_id')
-            .eq('usuario_id', usuario.id)
-            .eq('activo', true)
-            .single()
-
-          if (usuarioEmpresa) {
-            setEmpresaId(usuarioEmpresa.empresa_id)
-            setSucursalId(usuarioEmpresa.sucursal_id)
-          }
-        }
+      if (error || !usuario) {
+        return { success: false, error: 'Usuario no encontrado o inactivo' }
       }
+
+      // In a real app, you would verify the password hash here
+      // For now, we'll use a simple check
+      if (password !== 'demo123') {
+        return { success: false, error: 'Contraseña incorrecta' }
+      }
+
+      return { success: true, user: usuario }
     } catch (error) {
-      console.error('Error checking user:', error)
-    } finally {
-      setLoading(false)
+      console.error('Error validating user:', error)
+      return { success: false, error: 'Error de validación' }
     }
   }
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (rut: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true)
       
-      // For demo purposes, allow login with demo credentials
-      if (email === 'cajero@demo.cl' && password === 'demo123') {
-        // Create demo user
-        const demoUser = {
-          id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-          email: 'cajero@demo.cl',
-          nombre: 'Emilio',
-          apellidos: 'Aguilera',
-          rut: '12.345.678-9',
-          activo: true,
-          created_at: new Date().toISOString()
-        }
-        
-        setUser(demoUser)
-        setEmpresaId('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
-        setSucursalId('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
-        
-        return { success: true }
-      } else {
-        return { success: false, error: 'Credenciales inválidas. Use: cajero@demo.cl / demo123' }
+      // Validate user
+      const userResult = await validateUser(rut, password)
+      if (!userResult.success || !userResult.user) {
+        return { success: false, error: userResult.error }
       }
+
+      // Get empresa and sucursal from usuario_empresa
+      const { data: usuarioEmpresa, error: empresaError } = await supabase
+        .from('usuario_empresa')
+        .select('empresa_id, sucursal_id, rol')
+        .eq('usuario_id', userResult.user.id)
+        .eq('activo', true)
+        .single()
+
+      if (empresaError || !usuarioEmpresa) {
+        return { success: false, error: 'Usuario no asignado a empresa/sucursal' }
+      }
+
+      // Set user data
+      setUser(userResult.user)
+      setEmpresaId(usuarioEmpresa.empresa_id)
+      setSucursalId(usuarioEmpresa.sucursal_id)
+      setUserRole(usuarioEmpresa.rol)
+
+      // Save to localStorage for persistence
+      localStorage.setItem('pos_user', JSON.stringify(userResult.user))
+      localStorage.setItem('pos_empresa', usuarioEmpresa.empresa_id)
+      localStorage.setItem('pos_sucursal', usuarioEmpresa.sucursal_id)
+      localStorage.setItem('pos_role', usuarioEmpresa.rol)
+
+      return { success: true }
     } catch (error) {
       console.error('Login error:', error)
       return { success: false, error: 'Error inesperado' }
@@ -99,19 +117,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const logout = async () => {
-    await supabase.auth.signOut()
     setUser(null)
     setEmpresaId(null)
     setSucursalId(null)
+    setUserRole(null)
+    
+    // Clear localStorage
+    localStorage.removeItem('pos_user')
+    localStorage.removeItem('pos_empresa')
+    localStorage.removeItem('pos_sucursal')
+    localStorage.removeItem('pos_role')
   }
 
   const value = {
     user,
     loading,
     login,
+    validateUser,
     logout,
     empresaId,
-    sucursalId
+    sucursalId,
+    userRole
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
