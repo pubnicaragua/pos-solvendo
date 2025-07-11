@@ -1,83 +1,18 @@
-import React, { useState, useEffect } from 'react'
-import { Calculator, DollarSign, TrendingUp, TrendingDown, X } from 'lucide-react'
-import { Button } from '../common/Button'
+import React, { useState } from 'react'
+import { X, FileText } from 'lucide-react'
 import { usePOS } from '../../contexts/POSContext'
-import { useAuth } from '../../contexts/AuthContext'
-import { supabase } from '../../lib/supabase'
 
 interface CashCloseModalProps {
   isOpen: boolean
   onClose: () => void
 }
 
-interface CashSummary {
-  totalIngresos: number
-  totalEgresos: number
-  totalVentas: number
-  diferencia: number
-}
-
 export const CashCloseModal: React.FC<CashCloseModalProps> = ({
   isOpen,
   onClose
 }) => {
-  const [summary, setSummary] = useState<CashSummary>({
-    totalIngresos: 0,
-    totalEgresos: 0,
-    totalVentas: 0,
-    diferencia: 0
-  })
   const [loading, setLoading] = useState(false)
   const { closeCaja } = usePOS()
-  const { sucursalId } = useAuth()
-
-  useEffect(() => {
-    if (isOpen && sucursalId) {
-      loadCashSummary()
-    }
-  }, [isOpen, sucursalId])
-
-  const loadCashSummary = async () => {
-    if (!sucursalId) return
-
-    try {
-      const today = new Date().toISOString().split('T')[0]
-
-      // Get cash movements
-      const { data: movimientos } = await supabase
-        .from('movimientos_caja')
-        .select('*')
-        .eq('sucursal_id', sucursalId)
-        .gte('fecha', `${today}T00:00:00`)
-
-      // Get sales
-      const { data: ventas } = await supabase
-        .from('ventas')
-        .select('total')
-        .eq('sucursal_id', sucursalId)
-        .gte('fecha', `${today}T00:00:00`)
-
-      const totalIngresos = movimientos
-        ?.filter(m => m.tipo === 'ingreso')
-        .reduce((sum, m) => sum + Number(m.monto), 0) || 0
-
-      const totalEgresos = movimientos
-        ?.filter(m => m.tipo === 'retiro')
-        .reduce((sum, m) => sum + Number(m.monto), 0) || 0
-
-      const totalVentas = ventas
-        ?.reduce((sum, v) => sum + Number(v.total), 0) || 0
-
-      setSummary({
-        totalIngresos,
-        totalEgresos,
-        totalVentas,
-        diferencia: totalIngresos - totalEgresos
-      })
-    } catch (error) {
-      console.error('Error loading cash summary:', error)
-    }
-  }
 
   if (!isOpen) return null
 
@@ -97,94 +32,164 @@ export const CashCloseModal: React.FC<CashCloseModalProps> = ({
     setLoading(false)
   }
 
+  // Mock data for cash close summary
+  const cashSummary = {
+    fechaCierre: '14/05/2025',
+    horaCierre: '22:00',
+    cajaId: 'Caja N°1',
+    pedidosInformes: 'Pedidos informes',
+    ventasTotales: 102,
+    resumenVentas: [
+      { tipo: 'Boleta manual', cantidad: 22000, folio: '3x2x3x6', metodoPago: 'Tarjeta' },
+      { tipo: 'Boleta manual', cantidad: 22000, folio: '3x2x3x6', metodoPago: 'Tarjeta' },
+      { tipo: 'Boleta manual', cantidad: 22000, folio: '3x2x3x6', metodoPago: 'Efectivo' }
+    ],
+    totales: {
+      tarjeta: 34,
+      efectivo: 68,
+      resumenCaja: 102,
+      efectivoFinal: 68,
+      tarjetaFinal: 34,
+      retiroEfectivo: 2,
+      totalReal: 102,
+      diferencia: 36
+    }
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+      <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-900">Cierre de caja</h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={X}
-            onClick={onClose}
-          />
+          <div className="flex items-center gap-2">
+            <span className="text-xl font-semibold text-gray-900">Cierre de caja</span>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
-        <div className="p-6">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Calculator className="w-8 h-8 text-blue-600" />
-            </div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">
-              Resumen del día
-            </h4>
-            <p className="text-gray-600">
-              {new Date().toLocaleDateString('es-CL', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
-            </p>
-          </div>
-
-          <div className="space-y-4 mb-6">
-            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <TrendingUp className="w-5 h-5 text-green-600" />
-                <span className="font-medium text-green-800">Total ingresos</span>
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column - Cash Summary */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Fecha del cierre</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="date"
+                      value="2025-05-14"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                      readOnly
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Hora de cierre</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="time"
+                      value="22:00"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                      readOnly
+                    />
+                  </div>
+                </div>
               </div>
-              <span className="font-bold text-green-900">
-                {formatPrice(summary.totalIngresos)}
-              </span>
-            </div>
 
-            <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <TrendingDown className="w-5 h-5 text-red-600" />
-                <span className="font-medium text-red-800">Total egresos</span>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Caja N°</label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                  <option>Caja N°1</option>
+                </select>
               </div>
-              <span className="font-bold text-red-900">
-                {formatPrice(summary.totalEgresos)}
-              </span>
-            </div>
 
-            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <DollarSign className="w-5 h-5 text-blue-600" />
-                <span className="font-medium text-blue-800">Total ventas</span>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">Resumen de documentos</span>
+                </div>
+                <div className="text-xs text-blue-600">Ventas totales</div>
+                <div className="text-xs text-blue-600 mt-1">Pedidos informes</div>
               </div>
-              <span className="font-bold text-blue-900">
-                {formatPrice(summary.totalVentas)}
-              </span>
-            </div>
 
-            <div className="border-t pt-4">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="font-semibold text-gray-800">Diferencia</span>
-                <span className="font-bold text-gray-900 text-lg">
-                  {formatPrice(summary.diferencia)}
-                </span>
+              {/* Sales Summary Table */}
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Tipo de documento</th>
+                      <th className="px-3 py-2 text-left">Hora</th>
+                      <th className="px-3 py-2 text-left">Folio</th>
+                      <th className="px-3 py-2 text-left">Método de pago</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cashSummary.resumenVentas.map((venta, index) => (
+                      <tr key={index} className="border-t border-gray-200">
+                        <td className="px-3 py-2">{venta.tipo}</td>
+                        <td className="px-3 py-2">{venta.cantidad}</td>
+                        <td className="px-3 py-2">{venta.folio}</td>
+                        <td className="px-3 py-2">{venta.metodoPago}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-          </div>
 
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              fullWidth
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancelar
-            </Button>
-            <Button
-              fullWidth
-              onClick={handleCloseCash}
-              loading={loading}
-            >
-              Cerrar caja
-            </Button>
+            {/* Right Column - Totals */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="text-sm text-green-800 mb-1">Tarjeta ($)</div>
+                  <div className="text-lg font-bold text-green-900">+ 34 $</div>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="text-sm text-blue-800 mb-1">Efectivo ($)</div>
+                  <div className="text-lg font-bold text-blue-900">+ 68 $</div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-800 mb-1">Resumen de Caja</div>
+                  <div className="text-lg font-bold text-gray-900">102 $</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="text-sm text-green-800 mb-1">Efectivo ($)</div>
+                  <div className="text-lg font-bold text-green-900">+ 68 $</div>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="text-sm text-blue-800 mb-1">Tarjeta ($)</div>
+                  <div className="text-lg font-bold text-blue-900">+ 34 $</div>
+                </div>
+              </div>
+
+              <div className="bg-red-50 p-4 rounded-lg text-center">
+                <div className="text-sm text-red-800 mb-1">Retiro de efectivo</div>
+                <div className="text-lg font-bold text-red-900">- 2 $</div>
+              </div>
+
+              <div className="border-t pt-4 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Total teórico</span>
+                  <span className="font-bold">{formatPrice(cashSummary.totales.totalReal)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Diferencia</span>
+                  <span className="font-bold">{formatPrice(cashSummary.totales.diferencia)}</span>
+                </div>
+              </div>
+
+              <button
+                onClick={handleCloseCash}
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loading ? 'Cerrando caja...' : 'Cerrar caja'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

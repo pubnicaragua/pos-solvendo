@@ -1,19 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { ShoppingCart, Search, Users, Star, Calendar, X, Plus, Minus } from 'lucide-react'
-import { POSLayout } from '../components/pos/POSLayout'
-import { Button } from '../components/common/Button'
-import { Input } from '../components/common/Input'
+import { Search, X, Plus, Minus, Menu, Star, FileText, Package, Users } from 'lucide-react'
+import { Logo } from '../components/common/Logo'
 import { PaymentModal } from '../components/pos/PaymentModal'
 import { ClientModal } from '../components/pos/ClientModal'
 import { ReceiptModal } from '../components/pos/ReceiptModal'
 import { CashCloseModal } from '../components/pos/CashCloseModal'
 import { ReturnsModal } from '../components/pos/ReturnsModal'
 import { CashRegisterModal } from '../components/pos/CashRegisterModal'
-import { CashMovementModal } from '../components/pos/CashMovementModal'
-import { ReprintModal } from '../components/pos/ReprintModal'
-import { ReportsModal } from '../components/pos/ReportsModal'
-import { DeliveryModal } from '../components/pos/DeliveryModal'
 import { usePOS } from '../contexts/POSContext'
+import { useAuth } from '../contexts/AuthContext'
 import { Cliente, Venta } from '../lib/supabase'
 
 export const Dashboard: React.FC = () => {
@@ -24,10 +19,6 @@ export const Dashboard: React.FC = () => {
   const [showCashCloseModal, setShowCashCloseModal] = useState(false)
   const [showReturnsModal, setShowReturnsModal] = useState(false)
   const [showCashModal, setShowCashModal] = useState(false)
-  const [showCashMovementModal, setShowCashMovementModal] = useState(false)
-  const [showReprintModal, setShowReprintModal] = useState(false)
-  const [showReportsModal, setShowReportsModal] = useState(false)
-  const [showDeliveryModal, setShowDeliveryModal] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null)
   const [lastVenta, setLastVenta] = useState<Venta | null>(null)
   const [activeTab, setActiveTab] = useState<'destacados' | 'borradoras' | 'productos' | 'clientes'>('destacados')
@@ -44,6 +35,8 @@ export const Dashboard: React.FC = () => {
     clearCart,
     procesarVenta
   } = usePOS()
+
+  const { user, logout } = useAuth()
 
   useEffect(() => {
     loadProductos()
@@ -93,152 +86,173 @@ export const Dashboard: React.FC = () => {
     setSelectedClient(cliente)
   }
 
-  const renderProductGrid = () => {
-    if (activeTab === 'destacados') {
-      return (
-        <div className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Star className="w-4 h-4 text-blue-600 fill-current" />
-              <span className="text-sm font-medium text-blue-800">Productos destacados</span>
-            </div>
-            <div className="text-xs text-blue-600">Stock: 100 unidades</div>
-            <div className="text-xs text-blue-600">SKU: 4.5/5 (8624/8623)</div>
-          </div>
-          
-          {filteredProductos.slice(0, 3).map((producto) => (
-            <div key={producto.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
-                  <span className="text-xs">📦</span>
-                </div>
-                <div>
-                  <div className="font-medium text-sm">{producto.nombre}</div>
-                  <div className="text-xs text-gray-500">Stock: 100 unidades</div>
-                  <div className="text-xs text-gray-500">SKU: {producto.codigo}</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">{formatPrice(producto.precio)}</span>
-                <button
-                  onClick={() => addToCart(producto)}
-                  className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )
-    }
-
-    if (activeTab === 'borradoras') {
-      return (
-        <div className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-medium text-blue-800">Borradoras de Venta</span>
-            </div>
-            <div className="text-xs text-blue-600">Fecha del borrador: 14/05/2025</div>
-            <div className="space-y-2 mt-3">
-              <div className="text-xs">Buscar borradoras...</div>
-              <div className="text-xs">N°1 - Pedido N°: 14/05/2025</div>
-            </div>
-          </div>
-        </div>
-      )
-    }
-
-    if (activeTab === 'productos') {
-      return (
-        <div className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-medium text-blue-800">Productos / Servicios</span>
-            </div>
-            <div className="text-xs text-blue-600">Productos totales</div>
-          </div>
-          
-          {filteredProductos.map((producto) => (
-            <div key={producto.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
-                  <span className="text-xs">📦</span>
-                </div>
-                <div>
-                  <div className="font-medium text-sm">{producto.nombre}</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">{formatPrice(producto.precio)}</span>
-                <button
-                  onClick={() => addToCart(producto)}
-                  className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          ))}
-          
-          <div className="text-center py-4">
-            <Input
-              placeholder="Buscar productos..."
-              value={searchTerm}
-              onChange={setSearchTerm}
-              icon={Search}
-              iconPosition="left"
-            />
-          </div>
-        </div>
-      )
-    }
-
-    if (activeTab === 'clientes') {
-      return (
-        <div className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">Clientes</span>
-            </div>
-            <div className="text-xs text-blue-600">Cliente</div>
-          </div>
-          
-          <Button
-            fullWidth
-            variant="primary"
-            onClick={handleClientSelect}
-          >
-            Registrar nuevo cliente
-          </Button>
-        </div>
-      )
-    }
-
-    return null
-  }
+  const currentTime = new Date().toLocaleTimeString('es-CL', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 
   return (
-    <POSLayout>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded-lg transition-colors">
+                <Menu className="w-6 h-6 text-gray-600" />
+                <span className="text-xl font-semibold text-gray-900">POS</span>
+              </button>
+              <Logo size="md" />
+            </div>
+
+            <div className="flex items-center gap-6">
+              <div className="text-sm text-gray-600">
+                {currentTime}
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-medium text-gray-600">
+                    {user?.nombre?.charAt(0)}{user?.apellidos?.charAt(0)}
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-gray-900">
+                  {user?.nombre} {user?.apellidos}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
       <div className="flex h-[calc(100vh-80px)]">
         {/* Left Panel - Products */}
         <div className="flex-1 flex flex-col bg-white">
           {/* Search */}
           <div className="p-4 border-b border-gray-200">
-            <Input
-              placeholder="Ingresa aquí el producto o servicio..."
-              value={searchTerm}
-              onChange={setSearchTerm}
-              icon={Search}
-              iconPosition="left"
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Ingresa aquí el producto o servicio..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {renderProductGrid()}
+          <div className="flex-1 overflow-y-auto">
+            {activeTab === 'destacados' && (
+              <div className="p-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="w-4 h-4 text-blue-600 fill-current" />
+                    <span className="text-sm font-medium text-blue-800">Productos destacados</span>
+                  </div>
+                  <div className="text-xs text-blue-600">Stock: 100 unidades</div>
+                  <div className="text-xs text-blue-600">SKU: 4.5/5 (8624/8623)</div>
+                </div>
+                
+                <div className="space-y-3">
+                  {filteredProductos.slice(0, 3).map((producto) => (
+                    <div key={producto.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                          <Package className="w-4 h-4 text-gray-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-sm">{producto.nombre}</div>
+                          <div className="text-xs text-gray-500">Stock: 100 unidades</div>
+                          <div className="text-xs text-gray-500">SKU: {producto.codigo}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium">{formatPrice(producto.precio)}</span>
+                        <button
+                          onClick={() => addToCart(producto)}
+                          className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'borradoras' && (
+              <div className="p-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">Borradoras de Venta</span>
+                  </div>
+                  <div className="text-xs text-blue-600">Fecha del borrador: 14/05/2025</div>
+                  <div className="space-y-2 mt-3">
+                    <div className="text-xs">Buscar borradoras...</div>
+                    <div className="text-xs">N°1 - Pedido N°: 14/05/2025</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'productos' && (
+              <div className="p-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Package className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">Productos / Servicios</span>
+                  </div>
+                  <div className="text-xs text-blue-600">Productos totales</div>
+                </div>
+                
+                <div className="space-y-3">
+                  {filteredProductos.map((producto) => (
+                    <div key={producto.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                          <Package className="w-4 h-4 text-gray-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-sm">{producto.nombre}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium">{formatPrice(producto.precio)}</span>
+                        <button
+                          onClick={() => addToCart(producto)}
+                          className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'clientes' && (
+              <div className="p-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">Clientes</span>
+                  </div>
+                  <div className="text-xs text-blue-600">Cliente</div>
+                </div>
+                
+                <button
+                  onClick={handleClientSelect}
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Registrar nuevo cliente
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Bottom Tabs */}
@@ -259,7 +273,7 @@ export const Dashboard: React.FC = () => {
                   activeTab === 'borradoras' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                <div className="w-5 h-5 flex items-center justify-center">📄</div>
+                <FileText className="w-5 h-5" />
                 <span className="text-xs">Borradoras</span>
               </button>
               <button
@@ -268,7 +282,7 @@ export const Dashboard: React.FC = () => {
                   activeTab === 'productos' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                <div className="w-5 h-5 flex items-center justify-center">📦</div>
+                <Package className="w-5 h-5" />
                 <span className="text-xs">Productos</span>
               </button>
               <button
@@ -286,60 +300,6 @@ export const Dashboard: React.FC = () => {
 
         {/* Right Panel - Cart */}
         <div className="w-96 bg-white border-l border-gray-200 flex flex-col">
-          {/* Cart Header */}
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Carrito</h2>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">{cartItemsCount} ítems</span>
-                {carrito.length > 0 && (
-                  <button
-                    onClick={clearCart}
-                    className="text-red-500 hover:text-red-700 text-sm"
-                  >
-                    Limpiar
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Date Display */}
-            <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
-              <Calendar className="w-4 h-4" />
-              <span>Fecha del vendedor: {new Date().toLocaleDateString('es-CL')}</span>
-            </div>
-
-            {/* Client Selection */}
-            {selectedClient ? (
-              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-blue-900">
-                      {selectedClient.razon_social}
-                    </p>
-                    <p className="text-xs text-blue-700">RUT: {selectedClient.rut}</p>
-                  </div>
-                  <button
-                    onClick={() => setSelectedClient(null)}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
-                  >
-                    Cambiar
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={handleClientSelect}
-                className="w-full p-3 border border-gray-300 rounded-lg text-left hover:border-blue-300 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm text-gray-600">Cliente</span>
-                </div>
-              </button>
-            )}
-          </div>
-
           {/* Cart Items */}
           <div className="flex-1 overflow-y-auto p-4">
             {carrito.length === 0 ? (
@@ -376,8 +336,7 @@ export const Dashboard: React.FC = () => {
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
-                        <span>Descuento: 0%</span>
-                        <span>Importe: {formatPrice(item.producto.precio * item.cantidad)}</span>
+                        <span>Precio: {formatPrice(item.producto.precio)}</span>
                       </div>
                     </div>
                     <button
@@ -392,23 +351,55 @@ export const Dashboard: React.FC = () => {
             )}
           </div>
 
+          {/* Client Selection */}
+          <div className="p-4 border-t border-gray-200">
+            {selectedClient ? (
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 mb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-blue-900">
+                      {selectedClient.razon_social}
+                    </p>
+                    <p className="text-xs text-blue-700">RUT: {selectedClient.rut}</p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedClient(null)}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Cliente"
+                  onClick={handleClientSelect}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                  readOnly
+                />
+              </div>
+            )}
+          </div>
+
           {/* Cart Footer */}
           <div className="p-4 border-t border-gray-200 space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-lg font-semibold text-gray-900">Total</span>
-              <span className="text-2xl font-bold text-blue-600">
-                {formatPrice(cartTotal)}
+              <span className="text-2xl font-bold text-gray-900">
+                {formatPrice(cartTotal)} $
               </span>
             </div>
             
-            <Button 
-              fullWidth 
-              size="lg"
+            <button 
               onClick={handlePayment}
               disabled={!cajaAbierta || carrito.length === 0}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Pagar
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -448,26 +439,6 @@ export const Dashboard: React.FC = () => {
         onClose={() => setShowCashModal(false)}
         type="open"
       />
-
-      <CashMovementModal
-        isOpen={showCashMovementModal}
-        onClose={() => setShowCashMovementModal(false)}
-      />
-
-      <ReprintModal
-        isOpen={showReprintModal}
-        onClose={() => setShowReprintModal(false)}
-      />
-
-      <ReportsModal
-        isOpen={showReportsModal}
-        onClose={() => setShowReportsModal(false)}
-      />
-
-      <DeliveryModal
-        isOpen={showDeliveryModal}
-        onClose={() => setShowDeliveryModal(false)}
-      />
-    </POSLayout>
+    </div>
   )
 }

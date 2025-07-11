@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
-import { Input } from '../common/Input'
-import { Button } from '../common/Button'
+import { Eye, EyeOff } from 'lucide-react'
 import { Logo } from '../common/Logo'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -11,6 +9,8 @@ export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showSupervisorAuth, setShowSupervisorAuth] = useState(false)
+  const [supervisorPassword, setSupervisorPassword] = useState('')
   const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,91 +32,173 @@ export const LoginForm: React.FC = () => {
     setLoading(false)
   }
 
-  const handleLogin = () => {
-    handleSubmit({ preventDefault: () => {} } as React.FormEvent)
+  const handleSupervisorAuth = () => {
+    // Simulate supervisor authorization
+    console.log('Supervisor authorization:', supervisorPassword)
+    setShowSupervisorAuth(false)
+    setSupervisorPassword('')
+  }
+
+  if (showSupervisorAuth) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <Logo size="lg" className="mx-auto mb-6" />
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">Autorización</h2>
+            <p className="text-gray-600 text-center mb-8">ID / RUT Supervisor</p>
+
+            <form onSubmit={(e) => { e.preventDefault(); handleSupervisorAuth(); }} className="space-y-6">
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={supervisorPassword}
+                  onChange={(e) => setSupervisorPassword(e.target.value)}
+                  placeholder="Contraseña del Supervisor"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                disabled={!supervisorPassword}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Ingresar
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
           <Logo size="lg" className="mx-auto mb-6" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Inicio sesión</h2>
-          <p className="text-gray-600">Ingresa tus credenciales para acceder al sistema POS</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div className="space-y-4">
-            <Input
-              label="Correo"
-              type="email"
-              value={email}
-              onChange={setEmail}
-              placeholder="Ingresa tu correo electrónico"
-              icon={Mail}
-              iconPosition="left"
-              required
-              autoFocus
-              onEnter={handleLogin}
-            />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">Inicio sesión</h2>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Correo"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                autoFocus
+              />
+            </div>
 
             <div className="relative">
-              <Input
-                label="Contraseña"
+              <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
-                onChange={setPassword}
-                placeholder="Ingresa tu contraseña"
-                icon={Lock}
-                iconPosition="left"
-                required
-                onEnter={handleLogin}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Contraseña"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <button
                 type="button"
-                className="absolute right-3 top-9 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-          </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                ¿Olvidaste tu contraseña?
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center">
+                <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <span className="ml-2 text-gray-600">¿Olvidaste tu contraseña?</span>
               </label>
             </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={!email || !password || loading}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? 'Ingresando...' : 'Ingresar'}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => setShowSupervisorAuth(true)}
+              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+            >
+              Autorización de Supervisor
+            </button>
           </div>
+        </div>
 
-          <Button
-            type="submit"
-            fullWidth
-            size="lg"
-            loading={loading}
-            disabled={!email || !password}
-          >
-            Ingresar
-          </Button>
-        </form>
+        {/* User Registration Modal Trigger */}
+        <div className="mt-6 text-center">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Usuario</h3>
+            <div className="space-y-3">
+              <input
+                type="text"
+                placeholder="ID / RUT"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <div className="relative">
+                <input
+                  type="password"
+                  placeholder="Contraseña"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <Eye size={20} />
+                </button>
+              </div>
+              <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                Ingresar
+              </button>
+            </div>
+          </div>
+        </div>
 
-        <div className="text-center">
-          <p className="text-xs text-gray-500">
-            © 2025 Solvendo. Todos los derechos reservados.
-          </p>
+        {/* Cash Opening Modal */}
+        <div className="mt-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Efectivo inicial</h3>
+            <p className="text-gray-600 mb-4">Ingresar efectivo...</p>
+            <input
+              type="number"
+              placeholder="0"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center mb-4"
+            />
+            <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+              Aperturar
+            </button>
+          </div>
         </div>
       </div>
     </div>
