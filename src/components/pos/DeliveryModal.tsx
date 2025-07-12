@@ -55,9 +55,65 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
       setShowClientError(true)
       return
     }
-    console.log('Confirming delivery...', deliveryData)
-    toast.success('Despacho registrado correctamente')
-    onClose()
+    
+    // Validar campos requeridos
+    if (!deliveryData.destinatario || !deliveryData.direccion || !deliveryData.comuna || !deliveryData.ciudad) {
+      toast.error('Por favor complete todos los campos requeridos');
+      return;
+    }
+    
+    // Registrar el despacho
+    registerDelivery();
+  }
+  
+  const registerDelivery = async () => {
+    if (!empresaId || !selectedClient) return;
+    
+    try {
+      // Insertar en la tabla despachos (asumiendo que existe)
+      const { error } = await supabase
+        .from('despachos')
+        .insert([{
+          empresa_id: empresaId,
+          cliente_id: selectedClient.id,
+          destinatario: deliveryData.destinatario,
+          direccion: deliveryData.direccion,
+          comuna: deliveryData.comuna,
+          ciudad: deliveryData.ciudad,
+          region: deliveryData.region,
+          tipo: deliveryData.tipo,
+          numero_documento: deliveryData.numeroDocumento,
+          fecha: new Date().toISOString()
+        }]);
+        
+      if (error) {
+        if (error.code === '42P01') { // Tabla no existe
+          // Crear la tabla si no existe
+          await createDespachoTable();
+          // Reintentar la inserción
+          return registerDelivery();
+        }
+        throw error;
+      }
+      
+      toast.success('Despacho registrado correctamente');
+      onClose();
+    } catch (error) {
+      console.error('Error registering delivery:', error);
+      toast.error('Error al registrar despacho');
+    }
+  }
+  
+  const createDespachoTable = async () => {
+    // Esta función solo se ejecutaría si la tabla no existe
+    // En un entorno real, esto debería hacerse con migraciones
+    try {
+      const { error } = await supabase.rpc('create_despachos_table');
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error creating despachos table:', error);
+      toast.error('Error al crear tabla de despachos');
+    }
   }
 
   if (showClientError) {

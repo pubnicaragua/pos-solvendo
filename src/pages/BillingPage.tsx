@@ -54,13 +54,20 @@ export const BillingPage: React.FC<BillingPageProps> = ({ onClose }) => {
     setLoading(true)
     
     try {
+      // 1. Crear la venta
       const result = await procesarVenta(
         billingData.metodoPago, 
         billingData.tipoDte, 
         selectedClient?.id
-      )
+      );
       
       if (result.success) {
+        // 2. Registrar movimiento de caja si es efectivo
+        if (billingData.metodoPago === 'efectivo' && result.venta) {
+          await registrarMovimientoCaja(result.venta.id, result.venta.total);
+        }
+        
+        // 3. Mostrar diálogo de impresión
         setShowPrintDialog(true)
       } else {
         toast.error(result.error || 'Error al procesar la venta')
@@ -72,12 +79,71 @@ export const BillingPage: React.FC<BillingPageProps> = ({ onClose }) => {
       setLoading(false)
     }
   }
+  
+  const registrarMovimientoCaja = async (ventaId: string, monto: number) => {
+    if (!user) return;
+    
+    try {
+      // Obtener apertura de caja activa
+      const { data: apertura, error: aperturaError } = await supabase
+        .from('aperturas_caja')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .eq('estado', 'abierta')
+        .single();
+        
+      if (aperturaError || !apertura) {
+        console.error('No hay caja abierta');
+        return;
+      }
+      
+      // Registrar movimiento
+      const { error } = await supabase
+        .from('movimientos_caja')
+        .insert([{
+          apertura_caja_id: apertura.id,
+          usuario_id: user.id,
+          tipo: 'venta',
+          monto: monto,
+          observacion: `Venta ID: ${ventaId}`,
+          fecha: new Date().toISOString()
+        }]);
+        
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error registering cash movement:', error);
+    }
+  }
 
   const handlePrint = () => {
-    // Simulate printing
-    window.print()
-    clearCart()
-    onClose()
+    // Imprimir
+    window.print();
+    
+    // Guardar PDF
+    savePdfUrl();
+    
+    // Limpiar y cerrar
+    clearCart();
+    onClose();
+  }
+  
+  const savePdfUrl = async () => {
+    // Simulación de generación de PDF
+    const pdfUrl = `https://example.com/pdf/${Date.now()}.pdf`;
+    
+    try {
+      // Actualizar documento tributario
+      const { error } = await supabase
+        .from('documentos_tributarios')
+        .update({ pdf_url: pdfUrl })
+        .eq('tipo_dte', billingData.tipoDte)
+        .order('created_at', { ascending: false })
+        .limit(1);
+        
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error saving PDF URL:', error);
+    }
   }
 
   const handleSendEmail = () => {

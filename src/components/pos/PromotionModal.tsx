@@ -58,7 +58,19 @@ export const PromotionModal: React.FC<PromotionModalProps> = ({
     setLoading(true)
     
     try {
-      const success = await aplicarPromocion(productId, selectedPromotion)
+      // Verificar si la promoción existe
+      const { data: promocion, error: promocionError } = await supabase
+        .from('promociones')
+        .select('*')
+        .eq('id', selectedPromotion)
+        .single();
+        
+      if (promocionError || !promocion) {
+        throw new Error('Promoción no encontrada');
+      }
+      
+      // Aplicar la promoción al producto
+      const success = await aplicarPromocion(productId, selectedPromotion);
       
       if (success) {
         toast.success('Promoción aplicada correctamente')

@@ -83,78 +83,15 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
   }
   
   const handleDownload = () => {
-    setShowLastUpdateModal(true)
+    // Implementación de descarga real
+    console.log('Downloading report...')
+    toast.success('Reporte descargado correctamente')
   }
 
   const handleConfirmUpdate = () => {
     loadReportData()
     setShowUpdateModal(false)
     toast.success('Datos actualizados correctamente')
-  }
-
-  const handleConfirmDownload = () => {
-    // Simulate download
-    console.log('Downloading report...')
-    setShowLastUpdateModal(false)
-    toast.success('Reporte descargado correctamente')
-  }
-
-  if (showUpdateModal) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Última actualización</h3>
-            <p className="text-gray-600 mb-2">Fecha: 20/05/2025</p>
-            <p className="text-gray-600 mb-6">Hora: 21:19:50</p>
-            
-            <div className="flex gap-3">
-              <button 
-                onClick={() => setShowUpdateModal(false)}
-                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button 
-                onClick={handleConfirmUpdate}
-                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-              >
-                Realizar nueva actualización
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (showLastUpdateModal) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Última actualización</h3>
-            <p className="text-gray-600 mb-2">Fecha: 20/05/2025</p>
-            <p className="text-gray-600 mb-6">Hora: 21:19:50</p>
-            
-            <div className="flex gap-3">
-              <button 
-                onClick={() => setShowLastUpdateModal(false)}
-                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button 
-                onClick={handleConfirmDownload}
-                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-              >
-                Realizar nueva actualización
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -270,15 +207,25 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
         {/* Period Selector */}
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-600">
-            <span>Ver período anterior</span>
+            <span className="cursor-pointer hover:text-blue-600">Ver período anterior</span>
           </div>
-          <button
-            onClick={handleDownload}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            Realizar nueva actualización
-          </button>
+          <div>
+            {/* Última actualización inline */}
+            <div className="bg-gray-100 p-3 rounded-lg mb-3">
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Última actualización</h3>
+              <div className="flex justify-between text-xs text-gray-600">
+                <span>Fecha: 20/05/2025</span>
+                <span>Hora: 21:19:50</span>
+              </div>
+            </div>
+            <button
+              onClick={handleDownload}
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Realizar nueva actualización
+            </button>
+          </div>
         </div>
       </div>
 

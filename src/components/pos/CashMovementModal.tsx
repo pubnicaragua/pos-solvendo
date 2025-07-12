@@ -30,8 +30,30 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
     setLoading(true)
     
     try {
-      // For demo, just simulate the movement
-      console.log('Cash movement:', { movementType, amount, observation })
+      // Get current apertura_caja
+      const { data: apertura, error: aperturaError } = await supabase
+        .from('aperturas_caja')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .eq('estado', 'abierta')
+        .single();
+        
+      if (aperturaError || !apertura) {
+        throw new Error('No hay caja abierta');
+      }
+      
+      // Registrar el movimiento
+      const { error } = await supabase
+        .from('movimientos_caja')
+        .insert([{
+          apertura_caja_id: apertura.id,
+          usuario_id: user.id,
+          tipo: movementType,
+          monto: parseFloat(amount),
+          observacion: observation === 'Escribe tu observación...' ? '' : observation
+        }]);
+        
+      if (error) throw error;
       
       toast.success(`${movementType === 'ingreso' ? 'Ingreso' : 'Retiro'} registrado correctamente`)
       onClose()

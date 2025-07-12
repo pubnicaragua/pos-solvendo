@@ -73,28 +73,68 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
   const handlePrint = () => {
     setShowPrintModal(true)
   }
+  
+  const generatePdf = async () => {
+    // Simulación de generación de PDF
+    return `https://example.com/pdf/${Date.now()}.pdf`;
+  }
 
   const handleConfirmPrint = () => {
-    // Simulate printing multiple copies
-    for (let i = 0; i < copies; i++) {
-      setTimeout(() => {
-        setPrintDialogVisible(true)
-        window.print()
-      }, i * 100)
+    setPrintDialogVisible(true);
+    window.print();
+    
+    // Guardar URL del PDF en documentos_tributarios
+    if (selectedDoc) {
+      savePdfUrl(selectedDoc.id);
     }
+    
     setShowPrintModal(false)
     toast.success('Documento enviado a impresión')
   }
+  
+  const savePdfUrl = async (documentId: string) => {
+    try {
+      const url = await generatePdf();
+      
+      const { error } = await supabase
+        .from('documentos_tributarios')
+        .update({ pdf_url: url })
+        .eq('venta_id', documentId);
+        
+      if (error) throw error;
+      
+      // Recargar la lista después de guardar
+      loadDocuments();
+    } catch (error) {
+      console.error('Error saving PDF URL:', error);
+      toast.error('Error al guardar el documento');
+    }
+  }
 
   const handleSendEmail = () => {
-    setShowEmailModal(true)
+    setShowEmailModal(true);
   }
 
   const handleConfirmEmail = () => {
-    // Simulate sending email
-    console.log('Sending email...')
-    setShowEmailModal(false)
-    toast.success('Documento enviado por correo')
+    if (selectedDoc) {
+      sendEmail(selectedDoc.id);
+    }
+    setShowEmailModal(false);
+  }
+  
+  const sendEmail = async (documentId: string) => {
+    try {
+      // Aquí iría la lógica real para enviar el email
+      // Por ahora solo simulamos
+      
+      // Guardar también la URL del PDF
+      await savePdfUrl(documentId);
+      
+      toast.success('Documento enviado por correo');
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast.error('Error al enviar el correo');
+    }
   }
 
   const formatPrice = (price: number) => {

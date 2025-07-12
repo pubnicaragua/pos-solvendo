@@ -43,7 +43,7 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     if (searchTerm) {
       setFilteredProducts(
-        productos.filter(product => 
+        productos?.filter(product => 
           product.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
           product.codigo.toLowerCase().includes(searchTerm.toLowerCase())
         )
@@ -127,7 +127,7 @@ export const Dashboard: React.FC = () => {
       case 'destacado':
         return (
           <div className="grid grid-cols-2 gap-4">
-            {productos.filter(p => p.destacado).map(product => (
+            {produtos?.filter(p => p.destacado)?.map(product => (
               <div 
                 key={product.id} 
                 className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
@@ -183,7 +183,7 @@ export const Dashboard: React.FC = () => {
       case 'productos':
         return (
           <div className="grid grid-cols-2 gap-4">
-            {(searchTerm ? filteredProducts : productos).map(product => (
+            {(searchTerm ? filteredProducts : produtos)?.map(product => (
               <div 
                 key={product.id} 
                 className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
