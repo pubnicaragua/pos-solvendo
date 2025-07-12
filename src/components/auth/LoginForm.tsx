@@ -107,4 +107,4 @@ export const LoginForm: React.FC = () => {
       </div>
     </div>
   )
-}</parameter>
+};

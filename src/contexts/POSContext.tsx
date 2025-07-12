@@ -287,4 +287,4 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }
 
   return <POSContext.Provider value={value}>{children}</POSContext.Provider>
-}</parameter>
+};

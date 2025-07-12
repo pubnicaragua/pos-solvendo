@@ -57,4 +57,4 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onAction }) =
       </div>
     </div>
   )
-}</parameter>
+};
