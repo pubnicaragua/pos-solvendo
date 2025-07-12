@@ -190,31 +190,33 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-medium text-blue-800">Movimientos disponibles</span>
+              </div>
               <span className="text-sm font-medium text-blue-800">Movimientos disponibles ({movements.length})</span>
               <div className="text-xs text-blue-600">Fecha movimiento: 19/05/2025</div>
-            <div className="text-xs text-blue-600">Fecha movimiento: {today}</div>
-            <div className="text-xs text-blue-600 mt-1">
-              {movements.length === 0 ? 'Sin registros' : `${movements.length} movimientos`}
+              <div className="text-xs text-blue-600">Fecha movimiento: {today}</div>
+              <div className="text-xs text-blue-600 mt-1">
+                {movements.length === 0 ? 'Sin registros' : `${movements.length} movimientos`}
+              </div>
             </div>
-          </div>
           
-          {movements.length > 0 && (
-            <div className="mt-4 space-y-2">
-              {movements.map((movement) => (
-                <div key={movement.id} className="bg-white p-3 rounded-lg border">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium capitalize">{movement.tipo}</span>
-                    <span className="text-sm font-semibold">
-                      {movement.tipo === 'ingreso' ? '+' : '-'}${movement.monto}
-                    </span>
+            {movements.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {movements.map((movement) => (
+                  <div key={movement.id} className="bg-white p-3 rounded-lg border">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium capitalize">{movement.tipo}</span>
+                      <span className="text-sm font-semibold">
+                        {movement.tipo === 'ingreso' ? '+' : '-'}${movement.monto}
+                      </span>
+                    </div>
+                    {movement.observacion && (
+                      <p className="text-xs text-gray-600 mt-1">{movement.observacion}</p>
+                    )}
                   </div>
-                  {movement.observacion && (
-                    <p className="text-xs text-gray-600 mt-1">{movement.observacion}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
