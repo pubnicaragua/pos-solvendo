@@ -1,148 +1,57 @@
-import React, { useState } from 'react'
-import { Printer, Mail, X, Download } from 'lucide-react'
-import { Button } from '../common/Button'
-import { Venta } from '../../lib/supabase'
+import React from 'react'
+import { X } from 'lucide-react'
 
 interface ReceiptModalProps {
   isOpen: boolean
   onClose: () => void
-  venta: Venta | null
+  onPrint: () => void
+  onSendEmail: () => void
 }
 
 export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   isOpen,
   onClose,
-  venta
+  onPrint,
+  onSendEmail
 }) => {
-  const [showPrintDialog, setShowPrintDialog] = useState(false)
-
-  if (!isOpen || !venta) return null
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CL', {
-      style: 'currency',
-      currency: 'CLP'
-    }).format(price)
-  }
-
-  const handlePrint = () => {
-    setShowPrintDialog(true)
-  }
-
-  const handleEmail = () => {
-    console.log('Sending email...')
-  }
-
-  const handleDownload = () => {
-    console.log('Downloading PDF...')
-  }
-
-  const handleConfirmPrint = () => {
-    console.log('Printing receipt...')
-    setShowPrintDialog(false)
-    onClose()
-  }
-
-  if (showPrintDialog) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-          <div className="p-6 text-center">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Boleta generada</h3>
-            <p className="text-gray-600 mb-6">Enviar por correo electrónico (Opcional)</p>
-            
-            <div className="flex gap-3 mb-6">
-              <Button variant="outline" fullWidth onClick={handleEmail}>
-                Enviar
-              </Button>
-              <Button fullWidth onClick={handleConfirmPrint}>
-                Imprimir
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-900">Boleta generada</h3>
-          <button
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold">Boleta generada</h3>
+          <button 
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
-
+        
         <div className="p-6">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">
-              ¡Venta procesada exitosamente!
-            </h4>
-            <p className="text-gray-600">
-              Folio: {venta.folio}
-            </p>
-          </div>
-
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-600">Total:</span>
-              <span className="text-lg font-bold text-gray-900">
-                {formatPrice(venta.total)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-600">Método de pago:</span>
-              <span className="text-sm font-medium text-gray-900 capitalize">
-                {venta.metodo_pago}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Tipo de documento:</span>
-              <span className="text-sm font-medium text-gray-900 capitalize">
-                {venta.tipo_dte}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              icon={Printer}
-              onClick={handlePrint}
-              fullWidth
-            >
-              Imprimir
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              icon={Mail}
-              onClick={handleEmail}
-              fullWidth
+          <p className="text-gray-600 mb-4">Enviar por correo electrónico (Opcional)</p>
+          
+          <div className="flex mb-4">
+            <input
+              type="email"
+              placeholder="Email"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              onClick={onSendEmail}
+              className="bg-blue-600 text-white px-4 py-2 rounded-r-lg hover:bg-blue-700"
             >
               Enviar
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              icon={Download}
-              onClick={handleDownload}
-              fullWidth
-            >
-              Descargar
-            </Button>
+            </button>
           </div>
+          
+          <button
+            onClick={onPrint}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700"
+          >
+            Imprimir
+          </button>
         </div>
       </div>
     </div>

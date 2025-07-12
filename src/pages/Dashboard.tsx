@@ -3,6 +3,9 @@ import { Search, Menu, Clock, Star, FileText, Package, Users, Plus, Minus, X } f
 import { usePOS } from '../contexts/POSContext'
 import { useAuth } from '../contexts/AuthContext'
 import { Sidebar } from '../components/pos/Sidebar'
+import { ClientModal } from '../components/pos/ClientModal'
+import { PaymentModal } from '../components/pos/PaymentModal'
+import { ReceiptModal } from '../components/pos/ReceiptModal'
 
 type TabType = 'destacado' | 'borradoras' | 'productos' | 'clientes'
 
@@ -10,6 +13,9 @@ export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('destacado')
   const [searchTerm, setSearchTerm] = useState('')
   const [showSidebar, setShowSidebar] = useState(false)
+  const [showClientModal, setShowClientModal] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showReceiptModal, setShowReceiptModal] = useState(false)
   
   const { 
     productos, 
@@ -141,22 +147,22 @@ export const Dashboard: React.FC = () => {
       case 'clientes':
         return (
           <div className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Clientes</span>
-              </div>
-              <div className="text-xs text-blue-600">Cliente</div>
-              <div className="relative mt-2">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder=""
-                  className="w-full pl-10 pr-4 py-2 border border-blue-300 rounded-lg text-sm"
-                />
-              </div>
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="w-5 h-5 text-blue-600" />
+              <span className="text-sm font-medium text-blue-800">Clientes</span>
             </div>
-            <button className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors">
+            <div className="relative mb-4">
+              <input
+                type="text"
+                placeholder="Cliente"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            </div>
+            <button 
+              onClick={() => setShowClientModal(true)}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
               Registrar nuevo cliente
             </button>
           </div>
@@ -165,6 +171,27 @@ export const Dashboard: React.FC = () => {
       default:
         return null
     }
+  }
+
+  const handlePayment = () => {
+    if (carrito.length === 0) return
+    setShowPaymentModal(true)
+  }
+
+  const handlePaymentComplete = (metodoPago: string, tipoDte: string) => {
+    setShowPaymentModal(false)
+    setShowReceiptModal(true)
+  }
+
+  const handlePrint = () => {
+    window.print()
+    setShowReceiptModal(false)
+  }
+
+  const handleSendEmail = () => {
+    // Simulate sending email
+    console.log('Sending email...')
+    setShowReceiptModal(false)
   }
 
   const renderProductList = () => {
@@ -348,6 +375,7 @@ export const Dashboard: React.FC = () => {
             </div>
             
             <button
+              onClick={handlePayment}
               disabled={carrito.length === 0}
               className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
@@ -387,6 +415,29 @@ export const Dashboard: React.FC = () => {
         isOpen={showSidebar}
         onClose={() => setShowSidebar(false)}
         onAction={() => {}}
+      />
+      
+      {/* Client Modal */}
+      <ClientModal
+        isOpen={showClientModal}
+        onClose={() => setShowClientModal(false)}
+        onClientSelect={() => {}}
+      />
+      
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onPaymentComplete={handlePaymentComplete}
+        total={total}
+      />
+      
+      {/* Receipt Modal */}
+      <ReceiptModal
+        isOpen={showReceiptModal}
+        onClose={() => setShowReceiptModal(false)}
+        onPrint={handlePrint}
+        onSendEmail={handleSendEmail}
       />
     </div>
   )
