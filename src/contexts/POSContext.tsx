@@ -48,7 +48,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [loading, setLoading] = useState(false)
   const [carrito, setCarrito] = useState<CartItem[]>([])
   const [cajaAbierta, setCajaAbierta] = useState(false)
-  const { user, empresaId, sucursalId } = useAuth()
+  const { user, empresaId, sucursalId } = useAuth() 
 
   const total = carrito.reduce((sum, item) => sum + (item.precio * item.quantity), 0)
 
@@ -269,22 +269,26 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [empresaId])
 
   const value = {
-    productos,
-    loading,
-    loadProductos,
-    carrito,
-    total,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    procesarVenta,
-    crearCliente,
-    cajaAbierta,
-    checkCajaStatus,
-    openCaja,
-    closeCaja
+    productos: productos,
+    loading: loading,
+    loadProductos: loadProductos,
+    carrito: carrito,
+    total: total,
+    addToCart: addToCart,
+    removeFromCart: removeFromCart,
+    updateQuantity: updateQuantity,
+    clearCart: clearCart,
+    procesarVenta: procesarVenta,
+    crearCliente: crearCliente,
+    cajaAbierta: cajaAbierta,
+    checkCajaStatus: checkCajaStatus,
+    openCaja: openCaja,
+    closeCaja: closeCaja
   }
 
-  return <POSContext.Provider value={value}>{children}</POSContext.Provider>
+  return (
+    <POSContext.Provider value={value}>
+      {children}
+    </POSContext.Provider>
+  )
 };

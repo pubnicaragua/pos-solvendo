@@ -24,7 +24,7 @@ export const Dashboard: React.FC = () => {
   const { 
     productos,
     carrito, 
-    total, 
+    total,
     loading, 
     loadProductos, 
     addToCart, 
@@ -37,7 +37,7 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadProductos()
-  }, [])
+  }, [loadProductos])
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CL', {
