@@ -6,6 +6,8 @@ import { Sidebar } from '../components/pos/Sidebar'
 import { ClientModal } from '../components/pos/ClientModal'
 import { PaymentModal } from '../components/pos/PaymentModal'
 import { ReceiptModal } from '../components/pos/ReceiptModal'
+import { CashCloseModal } from '../components/pos/CashCloseModal'
+import { ReturnsModal } from '../components/pos/ReturnsModal'
 
 type TabType = 'destacado' | 'borradoras' | 'productos' | 'clientes'
 
@@ -16,6 +18,8 @@ export const Dashboard: React.FC = () => {
   const [showClientModal, setShowClientModal] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [showReceiptModal, setShowReceiptModal] = useState(false)
+  const [showCashCloseModal, setShowCashCloseModal] = useState(false)
+  const [showReturnsModal, setShowReturnsModal] = useState(false)
   
   const { 
     productos, 
@@ -63,6 +67,21 @@ export const Dashboard: React.FC = () => {
         return matchesSearch
     }
   })
+
+  const handleSidebarAction = (action: string) => {
+    setShowSidebar(false)
+    
+    switch (action) {
+      case 'cierre':
+        setShowCashCloseModal(true)
+        break
+      case 'devolucion':
+        setShowReturnsModal(true)
+        break
+      default:
+        break
+    }
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -414,7 +433,7 @@ export const Dashboard: React.FC = () => {
       <Sidebar
         isOpen={showSidebar}
         onClose={() => setShowSidebar(false)}
-        onAction={() => {}}
+        onAction={handleSidebarAction}
       />
       
       {/* Client Modal */}
@@ -439,6 +458,18 @@ export const Dashboard: React.FC = () => {
         onPrint={handlePrint}
         onSendEmail={handleSendEmail}
       />
+
+      {/* Cash Close Modal */}
+      <CashCloseModal
+        isOpen={showCashCloseModal}
+        onClose={() => setShowCashCloseModal(false)}
+      />
+
+      {/* Returns Modal */}
+      <ReturnsModal
+        isOpen={showReturnsModal}
+        onClose={() => setShowReturnsModal(false)}
+      />
     </div>
   )
-}</parameter>
+}
