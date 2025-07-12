@@ -199,30 +199,35 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (!empresaId || !sucursalId) return
 
       // Get active cash register
-      const { data: caja, error: cajaError } = await supabase
+      const { data: cajaData, error: cajaError } = await supabase
         .from('cajas')
         .select('*')
         .eq('empresa_id', empresaId)
         .eq('sucursal_id', sucursalId)
         .eq('activo', true)
-        .single()
 
-      if (cajaError || !caja) {
+      if (cajaError) {
         console.error('No active cash register found')
         return
       }
 
+      if (!cajaData || cajaData.length === 0) {
+        console.error('No cash register found')
+        return
+      }
+
+      const caja = cajaData[0]
       setCajaActual(caja)
 
       // Check if cash register is open
-      const { data: apertura, error: aperturaError } = await supabase
+      const { data: aperturaData, error: aperturaError } = await supabase
         .from('aperturas_caja')
         .select('*')
         .eq('caja_id', caja.id)
         .eq('estado', 'abierta')
-        .single()
 
-      if (apertura && !aperturaError) {
+      if (!aperturaError && aperturaData && aperturaData.length > 0) {
+        const apertura = aperturaData[0]
         setCajaAbierta(true)
         setAperturaActual(apertura)
       } else {

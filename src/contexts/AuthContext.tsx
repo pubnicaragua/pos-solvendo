@@ -50,20 +50,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Validating user with RUT:', rut)
       
-      const { data: usuarios, error } = await supabase
+      const { data, error } = await supabase
         .from('usuarios')
         .select('*')
         .eq('rut', rut)
         .eq('activo', true)
 
-      console.log('User query result:', { usuarios, error })
+      console.log('User query result:', { data, error })
 
-      if (error || !usuarios || usuarios.length === 0) {
+      if (error) {
         console.error('User not found or error:', error)
-        return { success: false, error: 'Usuario no encontrado o inactivo' }
+        return { success: false, error: 'Error de conexión a la base de datos' }
       }
 
-      const usuario = usuarios[0]
+      if (!data || data.length === 0) {
+        return { success: false, error: 'Usuario no encontrado' }
+      }
+
+      const usuario = data[0]
 
       // Simple password validation for demo
       if (password !== '123456') {
@@ -92,20 +96,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('User validated successfully:', userResult.user)
 
       // Get empresa and sucursal from usuario_empresa
-      const { data: usuarioEmpresas, error: empresaError } = await supabase
+      const { data: empresaData, error: empresaError } = await supabase
         .from('usuario_empresa')
         .select('empresa_id, sucursal_id, rol')
         .eq('usuario_id', userResult.user.id)
         .eq('activo', true)
 
-      console.log('Usuario empresa query result:', { usuarioEmpresas, empresaError })
+      console.log('Usuario empresa query result:', { empresaData, empresaError })
 
-      if (empresaError || !usuarioEmpresas || usuarioEmpresas.length === 0) {
+      if (empresaError) {
         console.error('Usuario empresa error:', empresaError)
-        return { success: false, error: 'Usuario no asignado a empresa/sucursal activa' }
+        return { success: false, error: 'Error al obtener datos de empresa' }
       }
 
-      const usuarioEmpresa = usuarioEmpresas[0]
+      if (!empresaData || empresaData.length === 0) {
+        return { success: false, error: 'Usuario no asignado a empresa/sucursal' }
+      }
+
+      const usuarioEmpresa = empresaData[0]
 
       // Set user data
       setUser(userResult.user)

@@ -8,60 +8,14 @@ export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [userRut, setUserRut] = useState('78.168.951-3')
-  const [userPassword, setUserPassword] = useState('')
+  const [userPassword, setUserPassword] = useState('123456')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [supervisorPassword, setSupervisorPassword] = useState('')
-  const [validatedUser, setValidatedUser] = useState<any>(null)
   const { login, validateUser } = useAuth()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email || !password) {
-      setError('Por favor completa todos los campos')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-
-    const result = await login(email, password)
-    
-    if (!result.success) {
-      setError(result.error || 'Error al iniciar sesión')
-    }
-    
-    setLoading(false)
-  }
-
-  const handleUserValidation = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!userRut || !userPassword) {
-      setError('Por favor completa todos los campos')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-
-    const result = await validateUser(userRut, userPassword)
-    
-    if (result.success && result.user) {
-      setValidatedUser(result.user)
-      // Proceed to cash opening - this will be handled by the parent component
-      const loginResult = await login(userRut, userPassword) 
-      if (!loginResult.success) {
-        setError(loginResult.error || 'Error al iniciar sesión')
-      }
-    } else {
-      setError(result.error || 'Credenciales inválidas')
-    }
-    
-    setLoading(false)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleMainLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !password) {
       setError('Por favor completa todos los campos')
@@ -76,13 +30,22 @@ export const LoginForm: React.FC = () => {
     setLoading(false)
   }
 
-  const handleMainLogin = async (e: React.FormEvent) => {
+  const handleUserValidation = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    const result = await validateUser(email, password)
-    if (!result.success) {
-      setError(result.error || 'Error al iniciar sesión')
+    if (!userRut || !userPassword) {
+      setError('Por favor completa todos los campos')
+      return
     }
+
+    setLoading(true)
+    setError('')
+
+    const result = await login(userRut, userPassword)
+    
+    if (!result.success) {
+      setError(result.error || 'Credenciales inválidas')
+    }
+    
     setLoading(false)
   }
 
@@ -105,7 +68,7 @@ export const LoginForm: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">Inicio sesión</h2>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleMainLogin} className="space-y-6">
               <div>
                 <input
                   type="email"
