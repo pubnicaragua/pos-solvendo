@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Printer, Search, Calendar } from 'lucide-react'
+import { Printer, Search, Calendar, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import toast from 'react-hot-toast'
 
 interface ReprintPageProps {
   onClose: () => void
@@ -24,6 +25,7 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
   const [showPrintModal, setShowPrintModal] = useState(false)
   const [showEmailModal, setShowEmailModal] = useState(false)
   const { empresaId } = useAuth()
+  const [printDialogVisible, setPrintDialogVisible] = useState(false)
 
   useEffect(() => {
     loadDocuments()
@@ -76,10 +78,12 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
     // Simulate printing multiple copies
     for (let i = 0; i < copies; i++) {
       setTimeout(() => {
+        setPrintDialogVisible(true)
         window.print()
       }, i * 100)
     }
     setShowPrintModal(false)
+    toast.success('Documento enviado a impresión')
   }
 
   const handleSendEmail = () => {
@@ -90,6 +94,7 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
     // Simulate sending email
     console.log('Sending email...')
     setShowEmailModal(false)
+    toast.success('Documento enviado por correo')
   }
 
   const formatPrice = (price: number) => {
@@ -97,6 +102,36 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
       style: 'currency',
       currency: 'CLP'
     }).format(price)
+  }
+
+  // Print dialog simulation
+  if (printDialogVisible) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">This webpage is trying to print...</h3>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setPrintDialogVisible(false)}
+                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  setPrintDialogVisible(false)
+                  toast.success('Impresión completada')
+                }}
+                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                Print
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (showEmailModal) {

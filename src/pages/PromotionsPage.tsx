@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Star, Search, Plus, Edit, Trash2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import toast from 'react-hot-toast'
 
 interface PromotionsPageProps {
   onClose: () => void
@@ -53,6 +54,7 @@ export const PromotionsPage: React.FC<PromotionsPageProps> = ({ onClose }) => {
       setPromotions(data || [])
     } catch (error) {
       console.error('Error loading promotions:', error)
+      toast.error('Error al cargar promociones')
     } finally {
       setLoading(false)
     }
@@ -92,8 +94,10 @@ export const PromotionsPage: React.FC<PromotionsPageProps> = ({ onClose }) => {
         activo: true
       })
       loadPromotions()
+      toast.success(editingPromotion ? 'Promoción actualizada correctamente' : 'Promoción creada correctamente')
     } catch (error) {
       console.error('Error saving promotion:', error)
+      toast.error('Error al guardar promoción')
     }
   }
 
@@ -112,6 +116,8 @@ export const PromotionsPage: React.FC<PromotionsPageProps> = ({ onClose }) => {
   }
 
   const handleDelete = async (id: string) => {
+    if (!confirm('¿Está seguro de eliminar esta promoción?')) return
+    
     try {
       const { error } = await supabase
         .from('promociones')
@@ -120,8 +126,10 @@ export const PromotionsPage: React.FC<PromotionsPageProps> = ({ onClose }) => {
 
       if (error) throw error
       loadPromotions()
+      toast.success('Promoción eliminada correctamente')
     } catch (error) {
       console.error('Error deleting promotion:', error)
+      toast.error('Error al eliminar promoción')
     }
   }
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { X, TrendingUp, Printer, BarChart3, Truck, RotateCcw, DollarSign, Star } from 'lucide-react'
+import { X, TrendingUp, Printer, BarChart3, Truck, RotateCcw, DollarSign, Star, Users, Scan, History } from 'lucide-react'
 
 interface SidebarProps {
   isOpen: boolean
@@ -19,21 +19,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onAction }) =
     { id: 'promociones', label: 'Promociones', icon: Star },
     { id: 'cierre', label: 'Cierre de caja', icon: DollarSign },
     { id: 'arqueo', label: 'Arqueo de caja', icon: DollarSign },
-    { id: 'historial-movimientos', label: 'Historial movimientos', icon: TrendingUp },
+    { id: 'historial-movimientos', label: 'Historial movimientos', icon: History },
     { id: 'categorias', label: 'Gestión categorías', icon: Star },
-    { id: 'codigos-barras', label: 'Códigos de barras', icon: Star },
-    { id: 'historial-cliente', label: 'Historial cliente', icon: Star }
+    { id: 'codigos-barras', label: 'Códigos de barras', icon: Scan },
+    { id: 'historial-cliente', label: 'Historial cliente', icon: Users }
   ]
 
   return (
-    <div className="fixed inset-0 z-50 flex">
+    <div className="fixed inset-0 z-50 flex flex-row-reverse">
       {/* Overlay */}
       <div 
         className="bg-black bg-opacity-50 flex-1"
         onClick={onClose}
       />
       
-      {/* Sidebar - Opens from LEFT */}
+      {/* Sidebar - Opens from LEFT (order-first) */}
       <div className="w-80 bg-white h-full shadow-xl order-first">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Módulos</h2>

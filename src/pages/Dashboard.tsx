@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { Search, Menu, Clock, Star, FileText, Package, Users, Plus, Minus, X } from 'lucide-react'
+import { Search, Menu, Clock, Star, FileText, Package, Users, Plus, Minus, X, Save } from 'lucide-react'
 import { usePOS } from '../contexts/POSContext'
 import { useAuth } from '../contexts/AuthContext'
 import { Sidebar } from '../components/pos/Sidebar'
 import { ClientModal } from '../components/pos/ClientModal'
 import { PaymentModal } from '../components/pos/PaymentModal'
 import { ReceiptModal } from '../components/pos/ReceiptModal'
-import { CashCloseModal } from '../components/pos/CashCloseModal'
-import { ReturnsModal } from '../components/pos/ReturnsModal'
+import { DraftSaveModal } from '../components/pos/DraftSaveModal'
+import { SupervisorAuthModal } from '../components/auth/SupervisorAuthModal'
+import { PromotionModal } from '../components/pos/PromotionModal'
+import toast from 'react-hot-toast'
 
 type TabType = 'destacado' | 'borradoras' | 'productos' | 'clientes'
 
@@ -18,15 +20,21 @@ export const Dashboard: React.FC = () => {
   const [showClientModal, setShowClientModal] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [showReceiptModal, setShowReceiptModal] = useState(false)
-  const [showCashCloseModal, setShowCashCloseModal] = useState(false)
-  const [showReturnsModal, setShowReturnsModal] = useState(false)
+  const [showDraftSaveModal, setShowDraftSaveModal] = useState(false)
+  const [showSupervisorAuthModal, setShowSupervisorAuthModal] = useState(false)
+  const [showPromotionModal, setShowPromotionModal] = useState(false)
+  const [selectedProductId, setSelectedProductId] = useState<string | undefined>(undefined)
   
   const { 
     productos,
     carrito, 
     total,
     loading, 
-    loadProductos, 
+    loadProductos,
+    borradores,
+    loadBorradores,
+    loadDraft,
+    deleteDraft,
     addToCart, 
     removeFromCart, 
     updateQuantity,
@@ -37,6 +45,7 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadProductos()
+    loadBorradores()
   }, [loadProductos])
 
   const formatPrice = (price: number) => {
@@ -71,16 +80,8 @@ export const Dashboard: React.FC = () => {
   const handleSidebarAction = (action: string) => {
     setShowSidebar(false)
     
-    switch (action) {
-      case 'cierre':
-        setShowCashCloseModal(true)
-        break
-      case 'devolucion':
-        setShowReturnsModal(true)
-        break
-      default:
-        break
-    }
+    // Navigate to the corresponding page
+    window.location.href = `/${action}`;
   }
 
   const renderTabContent = () => {
@@ -103,7 +104,7 @@ export const Dashboard: React.FC = () => {
       case 'borradoras':
         return (
           <div className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <FileText className="w-5 h-5 text-blue-600" />
@@ -120,23 +121,35 @@ export const Dashboard: React.FC = () => {
                 />
               </div>
             </div>
-            <div className="bg-white p-3 rounded-lg border">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">N°1 Pedro P. 14/05/2025</span>
-                <div className="flex items-center gap-2">
-                  <button className="text-green-600 hover:text-green-700">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  <button className="text-red-600 hover:text-red-700">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
+            {borradores.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No hay borradores guardados
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {borradores.map((borrador) => (
+                  <div key={borrador.id} className="bg-white p-3 rounded-lg border">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{borrador.nombre} {new Date(borrador.fecha).toLocaleDateString('es-CL')}</span>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => loadDraft(borrador.id)}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <FileText className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => deleteDraft(borrador.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
                   </button>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         )
       
@@ -148,6 +161,12 @@ export const Dashboard: React.FC = () => {
                 <Package className="w-5 h-5 text-blue-600" />
                 <span className="text-sm font-medium text-blue-800">Produtos / Servicios</span>
               </div>
+              <select className="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm mb-2">
+                <option>Todos los productos</option>
+                <option>Destacados</option>
+                <option>Con promoción</option>
+                <option>Sin promoción</option>
+              </select>
               <select className="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm mb-2">
                 <option>Produtos totales</option>
               </select>
@@ -376,7 +395,15 @@ export const Dashboard: React.FC = () => {
           <div className="border-t pt-4">
             <div className="flex gap-3 mb-4">
               <button
-                onClick={clearCart}
+            <div className="flex items-center gap-2 ml-auto">
+              <button
+                onClick={() => { setSelectedProductId(item.id); setShowPromotionModal(true); }}
+                className="text-blue-500 hover:text-blue-700"
+              >
+                <Percent className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => carrito.length > 0 ? clearCart() : toast.error('No hay productos en el carrito')}
                 className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <span>Cancelar</span>
@@ -384,7 +411,7 @@ export const Dashboard: React.FC = () => {
               </button>
               <button className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                 <span>Guardar borrador</span>
-                <FileText className="w-4 h-4" />
+                <Save className="w-4 h-4" onClick={() => carrito.length > 0 ? setShowDraftSaveModal(true) : toast.error('No hay productos en el carrito')} />
               </button>
             </div>
 
@@ -409,7 +436,7 @@ export const Dashboard: React.FC = () => {
         <div className="flex justify-center space-x-8">
           {[
             { id: 'destacado', label: 'Destacado', icon: Star },
-            { id: 'borradoras', label: 'Borradoras', icon: FileText },
+            { id: 'borradoras', label: 'Borradores', icon: FileText },
             { id: 'productos', label: 'Productos', icon: Package },
             { id: 'clientes', label: 'Clientes', icon: Users }
           ].map(({ id, label, icon: Icon }) => (
@@ -443,12 +470,25 @@ export const Dashboard: React.FC = () => {
         onClientSelect={() => {}}
       />
       
+      {/* Draft Save Modal */}
+      <DraftSaveModal
+        isOpen={showDraftSaveModal}
+        onClose={() => setShowDraftSaveModal(false)}
+      />
+      
       {/* Payment Modal */}
       <PaymentModal
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
         onPaymentComplete={handlePaymentComplete}
         total={total}
+      />
+
+      {/* Supervisor Auth Modal */}
+      <SupervisorAuthModal
+        isOpen={showSupervisorAuthModal}
+        onClose={() => setShowSupervisorAuthModal(false)}
+        onAuthorize={() => toast.success('Operación autorizada')}
       />
       
       {/* Receipt Modal */}
@@ -459,16 +499,11 @@ export const Dashboard: React.FC = () => {
         onSendEmail={handleSendEmail}
       />
 
-      {/* Cash Close Modal */}
-      <CashCloseModal
-        isOpen={showCashCloseModal}
-        onClose={() => setShowCashCloseModal(false)}
-      />
-
-      {/* Returns Modal */}
-      <ReturnsModal
-        isOpen={showReturnsModal}
-        onClose={() => setShowReturnsModal(false)}
+      {/* Promotion Modal */}
+      <PromotionModal
+        isOpen={showPromotionModal}
+        onClose={() => setShowPromotionModal(false)}
+        productId={selectedProductId}
       />
     </div>
   )

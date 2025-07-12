@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { BarChart3, Filter, X, Download, RefreshCw } from 'lucide-react'
+import { BarChart3, Filter, X, Download, RefreshCw, Calendar } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import toast from 'react-hot-toast'
 
 interface ReportsPageProps {
   onClose: () => void
@@ -18,6 +19,7 @@ interface ReportData {
 export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
   const [showFilters, setShowFilters] = useState(false)
   const [showUpdateModal, setShowUpdateModal] = useState(false)
+  const [showLastUpdateModal, setShowLastUpdateModal] = useState(false)
   const [reportData, setReportData] = useState<ReportData>({
     ventasTotales: 67750,
     margen: 67750,
@@ -26,6 +28,8 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
     ticketPromedio: 67750
   })
   const [filters, setFilters] = useState({
+    fechaInicio: new Date(new Date().setDate(new Date().getDate() - 14)).toISOString().split('T')[0],
+    fechaFin: new Date().toISOString().split('T')[0],
     caja1: true,
     caja2: true,
     caja3: true,
@@ -77,18 +81,22 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
   const handleUpdate = () => {
     setShowUpdateModal(true)
   }
+  
+  const handleDownload = () => {
+    setShowLastUpdateModal(true)
+  }
 
   const handleConfirmUpdate = () => {
     loadReportData()
     setShowUpdateModal(false)
+    toast.success('Datos actualizados correctamente')
   }
 
-  const handleDownload = () => {
+  const handleConfirmDownload = () => {
     // Simulate download
-    const confirmDownload = window.confirm('¿Desea descargar el reporte?')
-    if (confirmDownload) {
-      console.log('Downloading report...')
-    }
+    console.log('Downloading report...')
+    setShowLastUpdateModal(false)
+    toast.success('Reporte descargado correctamente')
   }
 
   if (showUpdateModal) {
@@ -109,6 +117,35 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
               </button>
               <button 
                 onClick={handleConfirmUpdate}
+                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                Realizar nueva actualización
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (showLastUpdateModal) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Última actualización</h3>
+            <p className="text-gray-600 mb-2">Fecha: 20/05/2025</p>
+            <p className="text-gray-600 mb-6">Hora: 21:19:50</p>
+            
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowLastUpdateModal(false)}
+                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleConfirmDownload}
                 className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
               >
                 Realizar nueva actualización
@@ -236,7 +273,7 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
             <span>Ver período anterior</span>
           </div>
           <button
-            onClick={handleUpdate}
+            onClick={handleDownload}
             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Download className="w-4 h-4" />
@@ -247,7 +284,7 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
 
       {/* Filters Sidebar */}
       {showFilters && (
-        <div className="absolute top-0 right-0 w-80 h-full bg-white border-l border-gray-200 p-6 shadow-lg z-10">
+        <div className="absolute top-0 right-0 w-80 h-full bg-white border-l border-gray-200 p-6 shadow-lg z-10 animate-slide-in-right">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <Filter className="w-5 h-5 text-blue-600" />
@@ -267,13 +304,15 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
               <div className="flex items-center gap-2 mb-4">
                 <input
                   type="date"
-                  defaultValue="2025-01-01"
+                  value={filters.fechaInicio}
+                  onChange={(e) => setFilters(prev => ({ ...prev, fechaInicio: e.target.value }))}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 />
                 <span className="text-gray-500">-</span>
                 <input
                   type="date"
-                  defaultValue="2025-12-31"
+                  value={filters.fechaFin}
+                  onChange={(e) => setFilters(prev => ({ ...prev, fechaFin: e.target.value }))}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 />
               </div>
@@ -283,24 +322,29 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
               <h5 className="text-sm font-medium text-gray-700 mb-3">Cajeros</h5>
               <div className="space-y-2">
                 {Object.entries(filters).map(([key, value]) => (
-                  <label key={key} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={value}
-                      onChange={(e) => setFilters(prev => ({
-                        ...prev,
-                        [key]: e.target.checked
-                      }))}
-                      className="rounded"
-                    />
-                    <span className="text-sm text-gray-700 capitalize">{key}</span>
-                  </label>
+                  key.startsWith('caja') && (
+                    <label key={key} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={value as boolean}
+                        onChange={(e) => setFilters(prev => ({
+                          ...prev,
+                          [key]: e.target.checked
+                        }))}
+                        className="rounded"
+                      />
+                      <span className="text-sm text-gray-700 capitalize">{key}</span>
+                    </label>
+                  )
                 ))}
               </div>
             </div>
 
             <button 
-              onClick={() => setShowFilters(false)}
+              onClick={() => {
+                setShowFilters(false);
+                toast.success('Filtros aplicados');
+              }}
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
               Realizar filtro

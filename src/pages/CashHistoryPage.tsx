@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { X, Calendar, Filter, TrendingUp, TrendingDown } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import toast from 'react-hot-toast'
 
 interface CashHistoryPageProps {
   onClose: () => void
@@ -59,9 +60,31 @@ export const CashHistoryPage: React.FC<CashHistoryPageProps> = ({ onClose }) => 
       setMovements(formattedMovements)
     } catch (error) {
       console.error('Error loading movements:', error)
+      toast.error('Error al cargar movimientos')
     } finally {
       setLoading(false)
     }
+    if (!confirm('¿Está seguro de eliminar este movimiento?')) return
+    
+    try {
+      const { error } = await supabase
+        .from('movimientos_caja')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+      
+      toast.success('Movimiento eliminado correctamente')
+      loadMovements()
+    } catch (error) {
+      console.error('Error deleting movement:', error)
+      toast.error('Error al eliminar movimiento')
+    }
+  }
+
+  const handleApplyFilters = () => {
+    loadMovements()
+    toast.success('Filtros aplicados correctamente')
   }
 
   const formatPrice = (price: number) => {
@@ -172,7 +195,7 @@ export const CashHistoryPage: React.FC<CashHistoryPageProps> = ({ onClose }) => 
 
             <div className="flex items-end">
               <button
-                onClick={loadMovements}
+                onClick={handleApplyFilters}
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Aplicar filtros
@@ -268,8 +291,14 @@ export const CashHistoryPage: React.FC<CashHistoryPageProps> = ({ onClose }) => 
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {movement.usuario_nombre || 'N/A'}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {movement.observacion || '-'}
+                      <td className="px-6 py-4 text-sm text-gray-900 flex items-center justify-between">
+                        <span>{movement.observacion || '-'}</span>
+                        <button
+                          onClick={() => handleDelete(movement.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   ))}

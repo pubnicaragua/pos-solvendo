@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { TrendingUp, X, Calendar } from 'lucide-react'
-import { Button } from '../common/Button'
 import { usePOS } from '../../contexts/POSContext'
 import { useAuth } from '../../contexts/AuthContext'
+import toast from 'react-hot-toast'
 
 interface CashMovementModalProps {
   isOpen: boolean
@@ -14,7 +14,7 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
   onClose
 }) => {
   const [movementType, setMovementType] = useState<'ingreso' | 'retiro'>('retiro')
-  const [amount, setAmount] = useState('0')
+  const [amount, setAmount] = useState('')
   const [observation, setObservation] = useState('Escribe tu observación...')
   const [loading, setLoading] = useState(false)
   const { empresaId, sucursalId, user } = useAuth()
@@ -22,7 +22,10 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
   if (!isOpen) return null
 
   const handleSubmit = async () => {
-    if (!amount || parseFloat(amount) <= 0 || !empresaId || !sucursalId || !user) return
+    if (!amount || parseFloat(amount) <= 0 || !empresaId || !sucursalId || !user) {
+      toast.error('Ingrese un monto válido')
+      return
+    }
 
     setLoading(true)
     
@@ -30,11 +33,13 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
       // For demo, just simulate the movement
       console.log('Cash movement:', { movementType, amount, observation })
       
+      toast.success(`${movementType === 'ingreso' ? 'Ingreso' : 'Retiro'} registrado correctamente`)
       onClose()
-      setAmount('0')
+      setAmount('')
       setObservation('Escribe tu observación...')
     } catch (error) {
       console.error('Error registering cash movement:', error)
+      toast.error('Error al registrar movimiento')
     } finally {
       setLoading(false)
     }
@@ -112,22 +117,20 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
             </div>
 
             <div className="flex gap-3 mt-6">
-              <Button
-                variant="outline"
-                fullWidth
+              <button
+                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
                 onClick={onClose}
                 disabled={loading}
               >
                 Cancelar
-              </Button>
-              <Button
-                fullWidth
+              </button>
+              <button
+                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 onClick={handleSubmit}
-                loading={loading}
                 disabled={!amount || parseFloat(amount) <= 0}
               >
-                Guardar
-              </Button>
+                {loading ? 'Guardando...' : 'Guardar'}
+              </button>
             </div>
           </div>
 

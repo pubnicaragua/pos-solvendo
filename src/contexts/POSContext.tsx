@@ -1,24 +1,40 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase, Producto, Cliente, Venta } from '../lib/supabase'
+import { supabase, Produto, Cliente, Venta } from '../lib/supabase'
 import { useAuth } from './AuthContext'
+import toast from 'react-hot-toast'
 
-interface CartItem extends Producto {
+interface CartItem extends Produto {
   quantity: number
+}
+
+interface DraftSale {
+  id: string
+  nombre: string
+  fecha: string
+  items: CartItem[]
+  total: number
 }
 
 interface POSContextType {
   // Products
-  productos: Producto[]
+  produtos: Produto[]
   loading: boolean
-  loadProductos: () => Promise<void>
+  loadProdutos: () => Promise<void>
   
   // Cart
   carrito: CartItem[]
   total: number
-  addToCart: (produto: Producto) => void
+  addToCart: (produto: Produto) => void
   removeFromCart: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
+  
+  // Drafts
+  borradores: DraftSale[]
+  loadBorradores: () => Promise<void>
+  saveDraft: (nombre: string) => Promise<boolean>
+  loadDraft: (draftId: string) => Promise<boolean>
+  deleteDraft: (draftId: string) => Promise<boolean>
   
   // Sales
   procesarVenta: (metodoPago: string, tipoDte: string, clienteId?: string) => Promise<{ success: boolean; venta?: any; error?: string }>
@@ -31,6 +47,11 @@ interface POSContextType {
   checkCajaStatus: () => Promise<void>
   openCaja: (montoInicial: number) => Promise<boolean>
   closeCaja: () => Promise<boolean>
+
+  // Promotions
+  promociones: any[]
+  loadPromociones: () => Promise<void>
+  aplicarPromocion: (produtoId: string, promocionId: string) => Promise<boolean>
 }
 
 const POSContext = createContext<POSContextType | undefined>(undefined)
@@ -44,36 +65,180 @@ export const usePOS = () => {
 }
 
 export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [productos, setProductos] = useState<Producto[]>([])
+  const [produtos, setProdutos] = useState<Produto[]>([])
   const [loading, setLoading] = useState(false)
   const [carrito, setCarrito] = useState<CartItem[]>([])
+  const [borradores, setBorradores] = useState<DraftSale[]>([])
+  const [promociones, setPromociones] = useState<any[]>([])
   const [cajaAbierta, setCajaAbierta] = useState(false)
   const { user, empresaId, sucursalId } = useAuth() 
 
   const total = carrito.reduce((sum, item) => sum + (item.precio * item.quantity), 0)
 
-  const loadProductos = async () => {
+  const loadProdutos = async () => {
     if (!empresaId) return
     
     setLoading(true)
     try {
       const { data, error } = await supabase
-        .from('productos')
+        .from('produtos')
         .select('*')
         .eq('empresa_id', empresaId)
         .eq('activo', true)
         .order('nombre')
 
       if (error) throw error
-      setProductos(data || [])
+      setProdutos(data || [])
     } catch (error) {
-      console.error('Error loading productos:', error)
+      console.error('Error loading produtos:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const addToCart = (produto: Producto) => {
+  const loadBorradores = async () => {
+    if (!empresaId || !user) return
+    
+    try {
+      const { data, error } = await supabase
+        .from('borradores_venta')
+        .select('*')
+        .eq('empresa_id', empresaId)
+        .eq('usuario_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setBorradores(data || [])
+    } catch (error) {
+      console.error('Error loading drafts:', error)
+      toast.error('Error al cargar borradores')
+    }
+  }
+
+  const saveDraft = async (nombre: string) => {
+    if (!empresaId || !user || carrito.length === 0) return false
+    
+    try {
+      const { error } = await supabase
+        .from('borradores_venta')
+        .insert([{
+          empresa_id: empresaId,
+          usuario_id: user.id,
+          nombre,
+          items: carrito,
+          total
+        }])
+
+      if (error) throw error
+      
+      toast.success('Borrador guardado correctamente')
+      await loadBorradores()
+      return true
+    } catch (error) {
+      console.error('Error saving draft:', error)
+      toast.error('Error al guardar borrador')
+      return false
+    }
+  }
+
+  const loadDraft = async (draftId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('borradores_venta')
+        .select('*')
+        .eq('id', draftId)
+        .single()
+
+      if (error) throw error
+      if (!data) return false
+
+      setCarrito(data.items || [])
+      toast.success('Borrador cargado correctamente')
+      return true
+    } catch (error) {
+      console.error('Error loading draft:', error)
+      toast.error('Error al cargar borrador')
+      return false
+    }
+  }
+
+  const deleteDraft = async (draftId: string) => {
+    try {
+      const { error } = await supabase
+        .from('borradores_venta')
+        .delete()
+        .eq('id', draftId)
+
+      if (error) throw error
+      
+      toast.success('Borrador eliminado correctamente')
+      await loadBorradores()
+      return true
+    } catch (error) {
+      console.error('Error deleting draft:', error)
+      toast.error('Error al eliminar borrador')
+      return false
+    }
+  }
+
+  const loadPromociones = async () => {
+    if (!empresaId) return
+    
+    try {
+      const { data, error } = await supabase
+        .from('promociones')
+        .select('*')
+        .eq('empresa_id', empresaId)
+        .eq('activo', true)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setPromociones(data || [])
+    } catch (error) {
+      console.error('Error loading promotions:', error)
+      toast.error('Error al cargar promociones')
+    }
+  }
+
+  const aplicarPromocion = async (produtoId: string, promocionId: string) => {
+    // Implementación básica, se puede expandir según necesidades
+    try {
+      // Buscar el produto en el carrito
+      const produtoIndex = carrito.findIndex(item => item.id === produtoId)
+      if (produtoIndex === -1) return false
+
+      // Buscar la promoción
+      const promocion = promociones.find(p => p.id === promocionId)
+      if (!promocion) return false
+
+      // Aplicar la promoción según su tipo
+      const newCarrito = [...carrito]
+      const produto = newCarrito[produtoIndex]
+
+      if (promocion.tipo === 'descuento_porcentaje') {
+        const descuento = produto.precio * (promocion.valor / 100)
+        newCarrito[produtoIndex] = {
+          ...produto,
+          precio: produto.precio - descuento
+        }
+      } else if (promocion.tipo === 'descuento_monto') {
+        newCarrito[produtoIndex] = {
+          ...produto,
+          precio: Math.max(0, produto.precio - promocion.valor)
+        }
+      }
+
+      setCarrito(newCarrito)
+      toast.success(`Promoción "${promocion.nombre}" aplicada`)
+      return true
+    } catch (error) {
+      console.error('Error applying promotion:', error)
+      toast.error('Error al aplicar promoción')
+      return false
+    }
+  }
+
+  const addToCart = (produto: Produto) => {
     setCarrito(prev => {
       const existing = prev.find(item => item.id === produto.id)
       if (existing) {
@@ -264,26 +429,36 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     if (empresaId) {
-      loadProductos()
+      loadProdutos()
+      loadPromociones()
+      loadBorradores()
     }
   }, [empresaId])
 
   const value = {
-    productos: productos,
+    produtos: produtos,
     loading: loading,
-    loadProductos: loadProductos,
+    loadProdutos: loadProdutos,
     carrito: carrito,
     total: total,
     addToCart: addToCart,
     removeFromCart: removeFromCart,
     updateQuantity: updateQuantity,
     clearCart: clearCart,
+    borradores: borradores,
+    loadBorradores: loadBorradores,
+    saveDraft: saveDraft,
+    loadDraft: loadDraft,
+    deleteDraft: deleteDraft,
     procesarVenta: procesarVenta,
     crearCliente: crearCliente,
     cajaAbierta: cajaAbierta,
     checkCajaStatus: checkCajaStatus,
     openCaja: openCaja,
-    closeCaja: closeCaja
+    closeCaja: closeCaja,
+    promociones: promociones,
+    loadPromociones: loadPromociones,
+    aplicarPromocion: aplicarPromocion
   }
 
   return (

@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
 import { Truck, Search, X, Plus, User, Calendar } from 'lucide-react'
-import { Button } from '../common/Button'
-import { Input } from '../common/Input'
 import { ClientModal } from './ClientModal'
 import { Cliente } from '../../lib/supabase'
+import toast from 'react-hot-toast'
 
 interface DeliveryModalProps {
   isOpen: boolean
@@ -57,18 +56,19 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
       return
     }
     console.log('Confirming delivery...', deliveryData)
+    toast.success('Despacho registrado correctamente')
     onClose()
   }
 
   if (showClientError) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-          <div className="p-6 text-center">
+            <button
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No has seleccionado el cliente</h3>
             <Button fullWidth onClick={() => setShowClientError(false)}>
               OK
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -95,13 +95,16 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
           {/* Left Panel - Products */}
           <div className="flex-1 p-6 border-r border-gray-200">
             <div className="mb-6">
-              <Input
-                placeholder="Ingresa aquí el producto o servicio..."
-                value={searchTerm}
-                onChange={setSearchTerm}
-                icon={Search}
-                iconPosition="left"
-              />
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Ingresa aquí el producto o servicio..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
             </div>
 
             {/* Available Documents Section */}
@@ -208,7 +211,9 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
                   </select>
                 </div>
               </div>
-
+              <button className="p-2 text-gray-500 hover:text-gray-700">
+                <X className="w-4 h-4" />
+              </button>
               <Input
                 label="Destinatario"
                 value={deliveryData.destinatario}
@@ -247,18 +252,20 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
               />
             </div>
 
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="flex justify-between items-center mb-4 text-lg font-semibold">
-                <span>Total de despacho</span>
-                <span>{formatPrice(34500)}</span>
-              </div>
-              
-              <Button
-                fullWidth
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="text"
+                    placeholder="Cliente"
+                    className="w-full pl-10 pr-4 py-2 border border-blue-300 rounded-lg text-sm"
+                  />
+                </div>
+              <button
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                 onClick={handleConfirmDelivery}
               >
                 Confirmar despacho
-              </Button>
+              </button>
             </div>
           </div>
         </div>
