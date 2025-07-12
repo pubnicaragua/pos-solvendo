@@ -147,7 +147,7 @@ export const LoginForm: React.FC = () => {
               <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                 <User className="w-8 h-8 text-blue-600" />
               </div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Usuario</h2> {/* Changed from "Usuario" to "Usuario" */}
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Usuario</h2> {/* Changed from "Usuario\" to "Usuario" */}
             </div>
 
             <form onSubmit={handleUserValidation} className="space-y-6">
