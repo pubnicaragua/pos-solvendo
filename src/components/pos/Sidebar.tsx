@@ -1,5 +1,5 @@
 import React from 'react'
-import { X, TrendingUp, Printer, BarChart3, Truck, RotateCcw, DollarSign } from 'lucide-react'
+import { X, TrendingUp, Printer, BarChart3, Truck, RotateCcw, DollarSign, Star } from 'lucide-react'
 
 interface SidebarProps {
   isOpen: boolean
@@ -16,6 +16,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onAction }) =
     { id: 'reportes', label: 'Reportes', icon: BarChart3 },
     { id: 'despacho', label: 'Despacho', icon: Truck },
     { id: 'devolucion', label: 'Devolución', icon: RotateCcw },
+    { id: 'promociones', label: 'Promociones', icon: Star },
     { id: 'cierre', label: 'Cierre de caja', icon: DollarSign }
   ]
 

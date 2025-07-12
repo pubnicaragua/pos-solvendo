@@ -15,21 +15,24 @@ import { DeliveryModal } from '../components/pos/DeliveryModal'
 import { Logo } from '../components/common/Logo'
 import { Producto, Cliente } from '../lib/supabase'
 
-type TabType = 'destacados' | 'borradoras' | 'productos' | 'clientes'
+// Import new pages
+import { CashMovementPage } from './CashMovementPage'
+import { ReprintPage } from './ReprintPage'
+import { ReportsPage } from './ReportsPage'
+import { DeliveryPage } from './DeliveryPage'
+import { PromotionsPage } from './PromotionsPage'
+
+type TabType = 'destacados' | 'borradoras' | 'productos' | 'clientes' | 'promociones'
+type PageType = 'dashboard' | 'movimiento' | 'reimprimir' | 'reportes' | 'despacho' | 'promociones'
 
 export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('destacados')
+  const [currentPage, setCurrentPage] = useState<PageType>('dashboard')
   const [searchTerm, setSearchTerm] = useState('')
   const [showSidebar, setShowSidebar] = useState(false)
   const [showClientModal, setShowClientModal] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [showReceiptModal, setShowReceiptModal] = useState(false)
-  const [showCashCloseModal, setShowCashCloseModal] = useState(false)
-  const [showCashMovementModal, setShowCashMovementModal] = useState(false)
-  const [showReturnsModal, setShowReturnsModal] = useState(false)
-  const [showReprintModal, setShowReprintModal] = useState(false)
-  const [showReportsModal, setShowReportsModal] = useState(false)
-  const [showDeliveryModal, setShowDeliveryModal] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null)
   const [lastSale, setLastSale] = useState(null)
   
@@ -97,24 +100,42 @@ export const Dashboard: React.FC = () => {
     
     switch (action) {
       case 'movimiento':
-        setShowCashMovementModal(true)
+        setCurrentPage('movimiento')
         break
       case 'reimprimir':
-        setShowReprintModal(true)
+        setCurrentPage('reimprimir')
         break
       case 'reportes':
-        setShowReportsModal(true)
+        setCurrentPage('reportes')
         break
       case 'despacho':
-        setShowDeliveryModal(true)
+        setCurrentPage('despacho')
         break
-      case 'devolucion':
-        setShowReturnsModal(true)
-        break
-      case 'cierre':
-        setShowCashCloseModal(true)
+      case 'promociones':
+        setCurrentPage('promociones')
         break
     }
+  }
+
+  // Render different pages
+  if (currentPage === 'movimiento') {
+    return <CashMovementPage onClose={() => setCurrentPage('dashboard')} />
+  }
+
+  if (currentPage === 'reimprimir') {
+    return <ReprintPage onClose={() => setCurrentPage('dashboard')} />
+  }
+
+  if (currentPage === 'reportes') {
+    return <ReportsPage onClose={() => setCurrentPage('dashboard')} />
+  }
+
+  if (currentPage === 'despacho') {
+    return <DeliveryPage onClose={() => setCurrentPage('dashboard')} />
+  }
+
+  if (currentPage === 'promociones') {
+    return <PromotionsPage onClose={() => setCurrentPage('dashboard')} />
   }
 
   const renderTabContent = () => {
@@ -199,6 +220,25 @@ export const Dashboard: React.FC = () => {
               className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors"
             >
               Registrar nuevo cliente
+            </button>
+          </div>
+        )
+
+      case 'promociones':
+        return (
+          <div className="space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="w-5 h-5 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">Promociones</span>
+              </div>
+              <div className="text-xs text-blue-600">Gestionar promociones activas</div>
+            </div>
+            <button
+              onClick={() => setCurrentPage('promociones')}
+              className="w-full bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors"
+            >
+              Ver todas las promociones
             </button>
           </div>
         )
@@ -376,7 +416,8 @@ export const Dashboard: React.FC = () => {
             { id: 'destacados', label: 'Destacado', icon: Star },
             { id: 'borradoras', label: 'Borradoras', icon: FileText },
             { id: 'productos', label: 'Productos', icon: Package },
-            { id: 'clientes', label: 'Clientes', icon: Users }
+            { id: 'clientes', label: 'Clientes', icon: Users },
+            { id: 'promociones', label: 'Promociones', icon: Star }
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -421,36 +462,6 @@ export const Dashboard: React.FC = () => {
         isOpen={showReceiptModal}
         onClose={() => setShowReceiptModal(false)}
         venta={lastSale}
-      />
-
-      <CashCloseModal
-        isOpen={showCashCloseModal}
-        onClose={() => setShowCashCloseModal(false)}
-      />
-
-      <CashMovementModal
-        isOpen={showCashMovementModal}
-        onClose={() => setShowCashMovementModal(false)}
-      />
-
-      <ReturnsModal
-        isOpen={showReturnsModal}
-        onClose={() => setShowReturnsModal(false)}
-      />
-
-      <ReprintModal
-        isOpen={showReprintModal}
-        onClose={() => setShowReprintModal(false)}
-      />
-
-      <ReportsModal
-        isOpen={showReportsModal}
-        onClose={() => setShowReportsModal(false)}
-      />
-
-      <DeliveryModal
-        isOpen={showDeliveryModal}
-        onClose={() => setShowDeliveryModal(false)}
       />
     </div>
   )
