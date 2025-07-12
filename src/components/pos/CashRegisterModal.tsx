@@ -122,4 +122,3 @@ export const CashRegisterModal: React.FC<CashRegisterModalProps> = ({
       </div>
     </div>
   )
-}</parameter>
