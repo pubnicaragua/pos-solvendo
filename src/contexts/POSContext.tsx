@@ -10,7 +10,7 @@ interface POSContextType {
   // Products
   produtos: Producto[]
   loading: boolean
-  loadProdutos: () => Promise<void>
+  loadProductos: () => Promise<void>
   
   // Cart
   carrito: CartItem[]
@@ -53,7 +53,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const total = carrito.reduce((sum, item) => sum + (item.precio * item.quantity), 0)
 
-  const loadProdutos = async () => {
+  const loadProductos = async () => {
     if (!empresaId) return
     
     setLoading(true)
@@ -63,7 +63,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .select('*')
         .eq('empresa_id', empresaId)
         .eq('activo', true)
-        .order('name')
+        .order('nombre')
 
       if (error) throw error
       setProductos(data || [])
@@ -272,7 +272,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const value = {
     produtos,
     loading,
-    loadProdutos,
+    loadProductos,
     carrito,
     total,
     addToCart,

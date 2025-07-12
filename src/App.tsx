@@ -4,6 +4,10 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { POSProvider } from './contexts/POSContext'
 import { LoginForm } from './components/auth/LoginForm'
 import { Dashboard } from './pages/Dashboard'
+import { CashMovementPage } from './pages/CashMovementPage'
+import { ReprintPage } from './pages/ReprintPage'
+import { ReportsPage } from './pages/ReportsPage'
+import { DeliveryPage } from './pages/DeliveryPage'
 import { POSLayout } from './components/pos/POSLayout'
 
 const AppRoutes: React.FC = () => {
@@ -26,6 +30,10 @@ const AppRoutes: React.FC = () => {
       <POSLayout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/movimiento" element={<CashMovementPage onClose={() => {}} />} />
+          <Route path="/reimprimir" element={<ReprintPage onClose={() => {}} />} />
+          <Route path="/reportes" element={<ReportsPage onClose={() => {}} />} />
+          <Route path="/despacho" element={<DeliveryPage onClose={() => {}} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </POSLayout>

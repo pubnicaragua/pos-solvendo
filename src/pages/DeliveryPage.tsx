@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Truck, Search, User, Calendar, Plus, Minus, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { usePOS } from '../contexts/POSContext'
+import { ClientModal } from '../components/pos/ClientModal'
+import { Cliente } from '../lib/supabase'
 
 interface DeliveryPageProps {
   onClose: () => void
@@ -9,6 +11,9 @@ interface DeliveryPageProps {
 
 export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onClose }) => {
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedClient, setSelectedClient] = useState<Cliente | null>(null)
+  const [showClientModal, setShowClientModal] = useState(false)
+  const [showClientError, setShowClientError] = useState(false)
   const [deliveryData, setDeliveryData] = useState({
     fecha: new Date().toISOString().split('T')[0],
     tipo: 'Tipo de despacho',
@@ -29,9 +34,44 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onClose }) => {
     }).format(price)
   }
 
+  const handleClientSelect = (cliente: Cliente | null) => {
+    setSelectedClient(cliente)
+    if (cliente) {
+      setDeliveryData(prev => ({
+        ...prev,
+        destinatario: cliente.razon_social,
+        direccion: cliente.direccion || 'Dirección',
+        comuna: cliente.comuna || 'Comuna',
+        ciudad: cliente.ciudad || 'Ciudad'
+      }))
+    }
+  }
+
   const handleConfirmDelivery = () => {
+    if (!selectedClient) {
+      setShowClientError(true)
+      return
+    }
     console.log('Confirming delivery...', deliveryData)
     onClose()
+  }
+
+  if (showClientError) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+          <div className="p-6 text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No has seleccionado el cliente</h3>
+            <button
+              onClick={() => setShowClientError(false)}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -171,6 +211,52 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onClose }) => {
 
         {/* Right Panel - Delivery Details */}
         <div className="w-96 p-6 bg-white border-l border-gray-200">
+          {/* Client Selection */}
+          <div className="mb-6">
+            {selectedClient ? (
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-blue-900">
+                      {selectedClient.razon_social}
+                    </p>
+                    <p className="text-xs text-blue-700">RUT: {selectedClient.rut}</p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedClient(null)}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
+                    Cambiar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">Clientes</span>
+                  </div>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type="text"
+                      placeholder="Cliente"
+                      className="w-full pl-10 pr-4 py-2 border border-blue-300 rounded-lg text-sm"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowClientModal(true)}
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Registrar nuevo cliente
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Delivery Form */}
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -180,7 +266,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onClose }) => {
                     type="date"
                     value={deliveryData.fecha}
                     onChange={(e) => setDeliveryData(prev => ({ ...prev, fecha: e.target.value }))}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
                   />
                   <Calendar className="w-4 h-4 text-gray-400" />
                 </div>
@@ -190,7 +276,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onClose }) => {
                 <select
                   value={deliveryData.tipo}
                   onChange={(e) => setDeliveryData(prev => ({ ...prev, tipo: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 >
                   <option>Tipo de despacho</option>
                   <option>Entrega inmediata</option>
@@ -276,6 +362,13 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onClose }) => {
           </div>
         </div>
       </div>
+
+      {/* Client Modal */}
+      <ClientModal
+        isOpen={showClientModal}
+        onClose={() => setShowClientModal(false)}
+        onClientSelect={handleClientSelect}
+      />
     </div>
   )
 }

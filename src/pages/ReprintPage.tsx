@@ -22,6 +22,7 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null)
   const [copies, setCopies] = useState(1)
   const [showPrintModal, setShowPrintModal] = useState(false)
+  const [showEmailModal, setShowEmailModal] = useState(false)
   const { empresaId } = useAuth()
 
   useEffect(() => {
@@ -81,6 +82,16 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
     setShowPrintModal(false)
   }
 
+  const handleSendEmail = () => {
+    setShowEmailModal(true)
+  }
+
+  const handleConfirmEmail = () => {
+    // Simulate sending email
+    console.log('Sending email...')
+    setShowEmailModal(false)
+  }
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CL', {
       style: 'currency',
@@ -88,23 +99,66 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
     }).format(price)
   }
 
+  if (showEmailModal) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Boleta generada</h3>
+            <button onClick={() => setShowEmailModal(false)} className="text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <p className="text-gray-600 mb-4">Enviar por correo electrónico (Opcional)</p>
+          
+          <div className="flex mb-4">
+            <input
+              type="email"
+              placeholder="Email"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              onClick={handleConfirmEmail}
+              className="bg-blue-600 text-white px-4 py-2 rounded-r-lg hover:bg-blue-700"
+            >
+              Enviar
+            </button>
+          </div>
+          
+          <button
+            onClick={handlePrint}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700"
+          >
+            Imprimir
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (showPrintModal) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Boleta generada</h3>
-          <p className="text-gray-600 mb-6">Enviar por correo electrónico (Opcional)</p>
-          
-          <div className="flex gap-3 mb-6">
-            <button className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
-              Enviar
-            </button>
-            <button 
-              onClick={handleConfirmPrint}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-            >
-              Imprimir
-            </button>
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Boleta generada</h3>
+            <p className="text-gray-600 mb-6">Enviar por correo electrónico (Opcional)</p>
+            
+            <div className="flex gap-3">
+              <button 
+                onClick={handleSendEmail}
+                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Enviar
+              </button>
+              <button 
+                onClick={handleConfirmPrint}
+                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                Imprimir
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -154,12 +208,15 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
             <div className="text-xs text-blue-600 mb-2">Fecha movimiento: {selectedDate}</div>
             
             <div className="space-y-2">
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm"
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm"
+                />
+                <Calendar className="w-5 h-5 text-gray-400" />
+              </div>
               
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />

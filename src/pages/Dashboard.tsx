@@ -22,11 +22,11 @@ export const Dashboard: React.FC = () => {
   const [showReturnsModal, setShowReturnsModal] = useState(false)
   
   const { 
-    produtos,
+    productos,
     carrito, 
     total, 
     loading, 
-    loadProdutos, 
+    loadProductos, 
     addToCart, 
     removeFromCart, 
     updateQuantity,
@@ -36,7 +36,7 @@ export const Dashboard: React.FC = () => {
   const { user } = useAuth()
 
   useEffect(() => {
-    loadProdutos()
+    loadProductos()
   }, [])
 
   const formatPrice = (price: number) => {
@@ -54,8 +54,8 @@ export const Dashboard: React.FC = () => {
     })
   }
 
-  const filteredProducts = produtos.filter(produto => {
-    const matchesSearch = produto.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredProducts = productos.filter(produto => {
+    const matchesSearch = produto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          produto.codigo.toLowerCase().includes(searchTerm.toLowerCase())
     
     switch (activeTab) {
@@ -229,7 +229,7 @@ export const Dashboard: React.FC = () => {
         {filteredProducts.map((produto) => (
           <div key={produto.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <div className="flex-1">
-              <h4 className="font-medium text-gray-900">{produto.nome}</h4>
+              <h4 className="font-medium text-gray-900">{produto.nombre}</h4>
               <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
                 <span>+ $ {produto.precio}</span>
                 <span className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs">
@@ -333,7 +333,7 @@ export const Dashboard: React.FC = () => {
               {carrito.map((item) => (
                 <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">{item.nome}</h4>
+                    <h4 className="font-medium text-gray-900">{item.nombre}</h4>
                     <div className="flex items-center gap-2 mt-1">
                       <button
                         onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}

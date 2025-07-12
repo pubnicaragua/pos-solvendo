@@ -83,6 +83,14 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
     setShowUpdateModal(false)
   }
 
+  const handleDownload = () => {
+    // Simulate download
+    const confirmDownload = window.confirm('¿Desea descargar el reporte?')
+    if (confirmDownload) {
+      console.log('Downloading report...')
+    }
+  }
+
   if (showUpdateModal) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -239,7 +247,7 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
 
       {/* Filters Sidebar */}
       {showFilters && (
-        <div className="absolute top-0 right-0 w-80 h-full bg-white border-l border-gray-200 p-6 shadow-lg">
+        <div className="absolute top-0 right-0 w-80 h-full bg-white border-l border-gray-200 p-6 shadow-lg z-10">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <Filter className="w-5 h-5 text-blue-600" />
@@ -291,7 +299,10 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
               </div>
             </div>
 
-            <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            <button 
+              onClick={() => setShowFilters(false)}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
               Realizar filtro
             </button>
           </div>
