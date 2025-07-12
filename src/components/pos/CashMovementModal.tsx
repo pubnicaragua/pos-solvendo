@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { TrendingUp, X, Calendar } from 'lucide-react'
 import { usePOS } from '../../contexts/POSContext'
 import { useAuth } from '../../contexts/AuthContext'
+import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
 
 interface CashMovementModalProps {
@@ -17,7 +18,33 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
   const [amount, setAmount] = useState('')
   const [observation, setObservation] = useState('Escribe tu observación...')
   const [loading, setLoading] = useState(false)
-  const { empresaId, sucursalId, user } = useAuth()
+  const [movements, setMovements] = useState<any[]>([])
+  const { user, empresaId, sucursalId } = useAuth()
+  
+  const today = new Date().toISOString().split('T')[0]
+  
+  useEffect(() => {
+    if (isOpen) {
+      loadMovements()
+    }
+  }, [isOpen])
+  
+  const loadMovements = async () => {
+    if (!empresaId) return
+
+    try {
+      const { data, error } = await supabase
+        .from('movimientos_caja')
+        .select('*')
+        .eq('fecha::date', today)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setMovements(data || [])
+    } catch (error) {
+      console.error('Error loading movements:', error)
+    }
+  }
 
   if (!isOpen) return null
 
@@ -45,17 +72,18 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
       // Registrar el movimiento
       const { error } = await supabase
         .from('movimientos_caja')
-        .insert([{
+        .insert({
           apertura_caja_id: apertura.id,
           usuario_id: user.id,
           tipo: movementType,
           monto: parseFloat(amount),
           observacion: observation === 'Escribe tu observación...' ? '' : observation
-        }]);
+        });
         
       if (error) throw error;
       
       toast.success(`${movementType === 'ingreso' ? 'Ingreso' : 'Retiro'} registrado correctamente`)
+      loadMovements()
       onClose()
       setAmount('')
       setObservation('Escribe tu observación...')
@@ -162,11 +190,31 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-medium text-blue-800">Movimientos disponibles</span>
-              </div>
+              <span className="text-sm font-medium text-blue-800">Movimientos disponibles ({movements.length})</span>
               <div className="text-xs text-blue-600">Fecha movimiento: 19/05/2025</div>
-              <div className="text-xs text-blue-600 mt-1">Sin registros</div>
+            <div className="text-xs text-blue-600">Fecha movimiento: {today}</div>
+            <div className="text-xs text-blue-600 mt-1">
+              {movements.length === 0 ? 'Sin registros' : `${movements.length} movimientos`}
             </div>
           </div>
+          
+          {movements.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {movements.map((movement) => (
+                <div key={movement.id} className="bg-white p-3 rounded-lg border">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium capitalize">{movement.tipo}</span>
+                    <span className="text-sm font-semibold">
+                      {movement.tipo === 'ingreso' ? '+' : '-'}${movement.monto}
+                    </span>
+                  </div>
+                  {movement.observacion && (
+                    <p className="text-xs text-gray-600 mt-1">{movement.observacion}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -3,6 +3,8 @@ import { Truck, Search, X, Plus, User, Calendar } from 'lucide-react'
 import { ClientModal } from './ClientModal'
 import { Cliente } from '../../lib/supabase'
 import toast from 'react-hot-toast'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../contexts/AuthContext'
 
 interface DeliveryModalProps {
   isOpen: boolean
@@ -18,6 +20,16 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
   const [showClientModal, setShowClientModal] = useState(false)
   const [showClientError, setShowClientError] = useState(false)
   const [deliveryData, setDeliveryData] = useState({
+    fecha: new Date().toISOString().split('T')[0],
+    tipo: 'Tipo de despacho',
+    destinatario: 'Inicial demo',
+    direccion: 'Dirección',
+    comuna: 'Comuna',
+    ciudad: 'Ciudad',
+    region: 'Región',
+    numeroDocumento: 'Número de documento'
+  })
+  const { empresaId } = useAuth()
     fecha: '19/05/2025',
     tipo: 'Tipo de despacho',
     destinatario: 'Inicial demo',
@@ -54,6 +66,65 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
     if (!selectedClient) {
       setShowClientError(true)
       return
+    }
+    
+    // Validar campos requeridos
+    if (!deliveryData.destinatario || !deliveryData.direccion || !deliveryData.comuna || !deliveryData.ciudad) {
+      toast.error('Por favor complete todos los campos requeridos');
+      return;
+    }
+    
+    // Registrar el despacho
+    registerDelivery();
+  }
+  
+  const registerDelivery = async () => {
+    if (!empresaId || !selectedClient) return;
+    
+    try {
+      // Insertar en la tabla despachos (asumiendo que existe)
+      const { error } = await supabase
+        .from('despachos')
+        .insert([{
+          empresa_id: empresaId,
+          cliente_id: selectedClient.id,
+          destinatario: deliveryData.destinatario,
+          direccion: deliveryData.direccion,
+          comuna: deliveryData.comuna,
+          ciudad: deliveryData.ciudad,
+          region: deliveryData.region,
+          tipo: deliveryData.tipo,
+          numero_documento: deliveryData.numeroDocumento,
+          fecha: new Date().toISOString()
+        }]);
+        
+      if (error) {
+        if (error.code === '42P01') { // Tabla no existe
+          // Crear la tabla si no existe
+          await createDespachoTable();
+          // Reintentar la inserción
+          return registerDelivery();
+        }
+        throw error;
+      }
+      
+      toast.success('Despacho registrado correctamente');
+      onClose();
+    } catch (error) {
+      console.error('Error registering delivery:', error);
+      toast.error('Error al registrar despacho');
+    }
+  }
+  
+  const createDespachoTable = async () => {
+    // Esta función solo se ejecutaría si la tabla no existe
+    // En un entorno real, esto debería hacerse con migraciones
+    try {
+      const { error } = await supabase.rpc('create_despachos_table');
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error creating despachos table:', error);
+      toast.error('Error al crear tabla de despachos');
     }
     
     // Validar campos requeridos

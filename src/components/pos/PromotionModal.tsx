@@ -63,14 +63,14 @@ export const PromotionModal: React.FC<PromotionModalProps> = ({
         .from('promociones')
         .select('*')
         .eq('id', selectedPromotion)
-        .single();
+        .single()
         
       if (promocionError || !promocion) {
-        throw new Error('Promoción no encontrada');
+        throw new Error('Promoción no encontrada')
       }
       
       // Aplicar la promoción al producto
-      const success = await aplicarPromocion(productId, selectedPromotion);
+      const success = await aplicarPromocion(productId, selectedPromotion)
       
       if (success) {
         toast.success('Promoción aplicada correctamente')

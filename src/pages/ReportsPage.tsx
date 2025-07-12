@@ -18,8 +18,6 @@ interface ReportData {
 
 export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
   const [showFilters, setShowFilters] = useState(false)
-  const [showUpdateModal, setShowUpdateModal] = useState(false)
-  const [showLastUpdateModal, setShowLastUpdateModal] = useState(false)
   const [reportData, setReportData] = useState<ReportData>({
     ventasTotales: 67750,
     margen: 67750,
@@ -79,19 +77,14 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
   }, [empresaId])
 
   const handleUpdate = () => {
-    setShowUpdateModal(true)
+    loadReportData()
+    toast.success('Datos actualizados correctamente')
   }
   
   const handleDownload = () => {
     // Implementación de descarga real
     console.log('Downloading report...')
     toast.success('Reporte descargado correctamente')
-  }
-
-  const handleConfirmUpdate = () => {
-    loadReportData()
-    setShowUpdateModal(false)
-    toast.success('Datos actualizados correctamente')
   }
 
   return (
@@ -209,7 +202,7 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
           <div className="text-sm text-gray-600">
             <span className="cursor-pointer hover:text-blue-600">Ver período anterior</span>
           </div>
-          <div>
+          <div className="flex flex-col items-end">
             {/* Última actualización inline */}
             <div className="bg-gray-100 p-3 rounded-lg mb-3">
               <h3 className="text-sm font-semibold text-gray-900 mb-1">Última actualización</h3>
@@ -221,7 +214,7 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
             <button
               onClick={handleDownload}
               className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
+              >
               <Download className="w-4 h-4" />
               Realizar nueva actualización
             </button>

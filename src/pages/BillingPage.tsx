@@ -59,12 +59,12 @@ export const BillingPage: React.FC<BillingPageProps> = ({ onClose }) => {
         billingData.metodoPago, 
         billingData.tipoDte, 
         selectedClient?.id
-      );
+      )
       
       if (result.success) {
         // 2. Registrar movimiento de caja si es efectivo
         if (billingData.metodoPago === 'efectivo' && result.venta) {
-          await registrarMovimientoCaja(result.venta.id, result.venta.total);
+          await registrarMovimientoCaja(result.venta.id, result.venta.total)
         }
         
         // 3. Mostrar diálogo de impresión
@@ -100,14 +100,14 @@ export const BillingPage: React.FC<BillingPageProps> = ({ onClose }) => {
       // Registrar movimiento
       const { error } = await supabase
         .from('movimientos_caja')
-        .insert([{
+        .insert({
           apertura_caja_id: apertura.id,
           usuario_id: user.id,
           tipo: 'venta',
           monto: monto,
           observacion: `Venta ID: ${ventaId}`,
           fecha: new Date().toISOString()
-        }]);
+        });
         
       if (error) throw error;
     } catch (error) {
@@ -138,7 +138,7 @@ export const BillingPage: React.FC<BillingPageProps> = ({ onClose }) => {
         .update({ pdf_url: pdfUrl })
         .eq('tipo_dte', billingData.tipoDte)
         .order('created_at', { ascending: false })
-        .limit(1);
+        .limit(1)
         
       if (error) throw error;
     } catch (error) {
