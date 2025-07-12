@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('rut', rut)
         .eq('activo', true)
 
-      console.log('User query result:', { data, error })
+      console.log('User validation query result:', { data, error })
 
       if (error) {
         console.error('User not found or error:', error)
@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('usuario_id', userResult.user.id)
         .eq('activo', true)
 
-      console.log('Usuario empresa query result:', { empresaData, empresaError })
+      console.log('Usuario empresa query result:', { empresaData, empresaError }) // Added log for debugging
 
       if (empresaError) {
         console.error('Usuario empresa error:', empresaError)
