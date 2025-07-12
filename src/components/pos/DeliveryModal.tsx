@@ -63,11 +63,14 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
   if (showClientError) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl p-6 max-w-sm w-full">
+          <div className="text-center">
             <button
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No has seleccionado el cliente</h3>
-            <Button fullWidth onClick={() => setShowClientError(false)}>
-              OK
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No has seleccionado el cliente</h3>
+              <Button fullWidth onClick={() => setShowClientError(false)}>
+                OK
+              </Button>
             </button>
           </div>
         </div>
@@ -250,16 +253,15 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
                 value={deliveryData.numeroDocumento}
                 onChange={(value) => setDeliveryData(prev => ({ ...prev, numeroDocumento: value }))}
               />
-            </div>
 
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input
-                    type="text"
-                    placeholder="Cliente"
-                    className="w-full pl-10 pr-4 py-2 border border-blue-300 rounded-lg text-sm"
-                  />
-                </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Cliente"
+                  className="w-full pl-10 pr-4 py-2 border border-blue-300 rounded-lg text-sm"
+                />
+              </div>
               <button
                 className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                 onClick={handleConfirmDelivery}
