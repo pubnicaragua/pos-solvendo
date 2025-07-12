@@ -82,13 +82,6 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
   const handleConfirmPrint = () => {
     setPrintDialogVisible(true);
     window.print();
-    
-    // Guardar URL del PDF en documentos_tributarios
-    if (selectedDoc) {
-      savePdfUrl(selectedDoc.id);
-    }
-    
-    
     // Guardar URL del PDF en documentos_tributarios
     if (selectedDoc) {
       savePdfUrl(selectedDoc.id);
@@ -96,30 +89,6 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
     
     setShowPrintModal(false)
     toast.success('Documento enviado a impresión')
-  }
-  
-  const savePdfUrl = async (documentId: string) => {
-    try {
-      const url = await generatePdf();
-      
-      const { error } = await supabase
-        .from('documentos_tributarios')
-        .update({ pdf_url: url })
-        .eq('venta_id', documentId);
-        
-      if (error) throw error;
-      
-      // Recargar la lista después de guardar
-      loadDocuments();
-    } catch (error) {
-      console.error('Error saving PDF URL:', error);
-      toast.error('Error al guardar el documento');
-    }
-  }
-  
-  const generatePdf = async () => {
-    // Simulación de generación de PDF
-    return `https://example.com/pdf/${Date.now()}.pdf`;
   }
   
   const savePdfUrl = async (documentId: string) => {
@@ -149,25 +118,7 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
     if (selectedDoc) {
       sendEmail(selectedDoc.id);
     }
-    if (selectedDoc) {
-      sendEmail(selectedDoc.id);
-    }
     setShowEmailModal(false);
-  }
-  
-  const sendEmail = async (documentId: string) => {
-    try {
-      // Aquí iría la lógica real para enviar el email
-      // Por ahora solo simulamos
-      
-      // Guardar también la URL del PDF
-      await savePdfUrl(documentId);
-      
-      toast.success('Documento enviado por correo');
-    } catch (error) {
-      console.error('Error sending email:', error);
-      toast.error('Error al enviar el correo');
-    }
   }
   
   const sendEmail = async (documentId: string) => {
