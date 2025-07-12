@@ -1,21 +1,22 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase, Produto, Cliente, Venta } from '../lib/supabase'
+import { supabase, Producto, Cliente, Venta } from '../lib/supabase'
 import { useAuth } from './AuthContext'
 
-interface CartItem extends Produto {
+interface CartItem extends Producto {
   quantity: number
 }
 
 interface POSContextType {
   // Products
-  produtos: Produto[]
+  produtos: Producto[]
   loading: boolean
-  loadProductos: () => Promise<void>
+  loadProdutos: () => Promise<void>
   
   // Cart
   carrito: CartItem[]
   total: number
   addToCart: (produto: Produto) => void
+  addToCart: (produto: Producto) => void
   removeFromCart: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
@@ -44,7 +45,7 @@ export const usePOS = () => {
 }
 
 export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [produtos, setProductos] = useState<Produto[]>([])
+  const [produtos, setProductos] = useState<Producto[]>([])
   const [loading, setLoading] = useState(false)
   const [carrito, setCarrito] = useState<CartItem[]>([])
   const [cajaAbierta, setCajaAbierta] = useState(false)
@@ -52,28 +53,28 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const total = carrito.reduce((sum, item) => sum + (item.precio * item.quantity), 0)
 
-  const loadProductos = async () => {
+  const loadProdutos = async () => {
     if (!empresaId) return
     
     setLoading(true)
     try {
       const { data, error } = await supabase
-        .from('produtos')
+        .from('productos')
         .select('*')
         .eq('empresa_id', empresaId)
         .eq('activo', true)
-        .order('nome')
+        .order('name')
 
       if (error) throw error
       setProductos(data || [])
     } catch (error) {
-      console.error('Error loading produtos:', error)
+      console.error('Error loading productos:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const addToCart = (produto: Produto) => {
+  const addToCart = (produto: Producto) => {
     setCarrito(prev => {
       const existing = prev.find(item => item.id === produto.id)
       if (existing) {
@@ -264,14 +265,14 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     if (empresaId) {
-      loadProductos()
+      loadProdutos()
     }
   }, [empresaId])
 
   const value = {
     produtos,
     loading,
-    loadProductos,
+    loadProdutos,
     carrito,
     total,
     addToCart,
