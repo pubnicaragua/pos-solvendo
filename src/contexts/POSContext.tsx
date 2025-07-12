@@ -264,7 +264,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     if (empresaId) {
-      loadProdutos()
+      loadProductos()
     }
   }, [empresaId])
 
