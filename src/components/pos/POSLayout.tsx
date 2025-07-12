@@ -1,6 +1,4 @@
-import React, { useState } from 'react'
-import { DollarSign } from 'lucide-react'
-import { Button } from '../common/Button'
+import React, { useState, useEffect } from 'react'
 import { CashRegisterModal } from './CashRegisterModal'
 import { usePOS } from '../../contexts/POSContext'
 
@@ -11,28 +9,36 @@ interface POSLayoutProps {
 export const POSLayout: React.FC<POSLayoutProps> = ({ children }) => {
   const [showCashModal, setShowCashModal] = useState(false)
   const [cashModalType, setCashModalType] = useState<'open' | 'close'>('open')
-  const { cajaAbierta } = usePOS()
+  const { cajaAbierta, checkCajaStatus } = usePOS()
+
+  // Check cash register status on mount
+  useEffect(() => {
+    checkCajaStatus()
+  }, [])
 
   // Show cash modal if cash register is not open
-  React.useEffect(() => {
+  useEffect(() => {
     if (!cajaAbierta) {
       setShowCashModal(true)
+      setCashModalType('open')
     }
   }, [cajaAbierta])
 
-  const handleOpenCash = () => {
-    setCashModalType('open')
-    setShowCashModal(true)
+  const handleCashModalClose = () => {
+    // Only allow closing if cash register is open
+    if (cajaAbierta) {
+      setShowCashModal(false)
+    }
   }
 
   return (
     <>
       {children}
 
-      {/* Modals */}
+      {/* Cash Register Modal */}
       <CashRegisterModal
         isOpen={showCashModal}
-        onClose={() => setShowCashModal(false)}
+        onClose={handleCashModalClose}
         type={cashModalType}
       />
     </>

@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
-import { DollarSign, Calculator } from 'lucide-react'
-import { Button } from '../common/Button'
-import { Input } from '../common/Input'
+import { DollarSign, X } from 'lucide-react'
 import { usePOS } from '../../contexts/POSContext'
 
 interface CashRegisterModalProps {
@@ -45,42 +43,55 @@ export const CashRegisterModal: React.FC<CashRegisterModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-        <div className="p-6 text-center">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+        {/* Header con botón cerrar */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="text-center">
+          {/* Ícono */}
           <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
             <DollarSign className="w-8 h-8 text-blue-600" />
           </div>
           
+          {/* Título */}
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            {isOpenCash ? 'Efectivo inicial' : 'Cierre de caja'}
+            Efectivo inicial
           </h3>
           
+          {/* Subtítulo */}
           <p className="text-gray-600 mb-6">
-            {isOpenCash ? 'Ingresar efectivo...' : 'Confirma el cierre de caja del día'}
+            Ingresar efectivo...
           </p>
 
-          {isOpenCash && (
-            <div className="mb-6">
-              <Input
-                type="number"
-                value={amount}
-                onChange={setAmount}
-                placeholder="0"
-                className="text-center text-lg"
-                autoFocus
-              />
-            </div>
-          )}
+          {/* Input de monto */}
+          <div className="mb-6">
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0"
+              className="w-full px-4 py-3 text-center text-lg border-2 border-blue-200 rounded-full focus:outline-none focus:border-blue-500 transition-colors"
+              autoFocus
+              min="0"
+              step="0.01"
+            />
+          </div>
 
-          <Button
-            fullWidth
-            size="lg"
+          {/* Botón de acción */}
+          <button
             onClick={handleSubmit}
-            loading={loading}
-            disabled={isOpenCash && !amount}
+            disabled={!amount || loading}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors h-12"
           >
-            {isOpenCash ? 'Aperturar' : 'Cerrar caja'}
-          </Button>
+            {loading ? 'Procesando...' : 'Aperturar'}
+          </button>
         </div>
       </div>
     </div>

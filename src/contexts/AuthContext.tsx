@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('User validation query result:', { data, error })
 
       if (error) {
-        console.error('User not found or error:', error)
+        console.error('Database error:', error)
         return { success: false, error: 'Error de conexión a la base de datos' }
       }
 
@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const usuario = data[0]
 
-      // Simple password validation for demo
+      // Simple password validation for demo (in production, use proper hashing)
       if (password !== '123456') {
         return { success: false, error: 'Contraseña incorrecta' }
       }
@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('usuario_id', userResult.user.id)
         .eq('activo', true)
 
-      console.log('Usuario empresa query result:', { empresaData, empresaError }) // Added log for debugging
+      console.log('Usuario empresa query result:', { empresaData, empresaError })
 
       if (empresaError) {
         console.error('Usuario empresa error:', empresaError)
