@@ -28,7 +28,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onAction }) =
         onClick={onClose}
       />
       
-      {/* Sidebar */}
+      {/* Sidebar - Opens from RIGHT */}
       <div className="w-80 bg-white h-full shadow-xl">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Módulos</h2>
@@ -57,4 +57,4 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onAction }) =
       </div>
     </div>
   )
-}
+}</parameter>

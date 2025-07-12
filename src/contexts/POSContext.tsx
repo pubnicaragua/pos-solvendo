@@ -1,21 +1,21 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase, Producto, Cliente, Venta } from '../lib/supabase'
+import { supabase, Produto, Cliente, Venta } from '../lib/supabase'
 import { useAuth } from './AuthContext'
 
-interface CartItem extends Producto {
+interface CartItem extends Produto {
   quantity: number
 }
 
 interface POSContextType {
   // Products
-  productos: Producto[]
+  produtos: Produto[]
   loading: boolean
   loadProductos: () => Promise<void>
   
   // Cart
   carrito: CartItem[]
   total: number
-  addToCart: (producto: Producto) => void
+  addToCart: (produto: Produto) => void
   removeFromCart: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
@@ -44,7 +44,7 @@ export const usePOS = () => {
 }
 
 export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [productos, setProductos] = useState<Producto[]>([])
+  const [produtos, setProductos] = useState<Produto[]>([])
   const [loading, setLoading] = useState(false)
   const [carrito, setCarrito] = useState<CartItem[]>([])
   const [cajaAbierta, setCajaAbierta] = useState(false)
@@ -58,32 +58,32 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setLoading(true)
     try {
       const { data, error } = await supabase
-        .from('productos')
+        .from('produtos')
         .select('*')
         .eq('empresa_id', empresaId)
         .eq('activo', true)
-        .order('nombre')
+        .order('nome')
 
       if (error) throw error
       setProductos(data || [])
     } catch (error) {
-      console.error('Error loading productos:', error)
+      console.error('Error loading produtos:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const addToCart = (producto: Producto) => {
+  const addToCart = (produto: Produto) => {
     setCarrito(prev => {
-      const existing = prev.find(item => item.id === producto.id)
+      const existing = prev.find(item => item.id === produto.id)
       if (existing) {
         return prev.map(item =>
-          item.id === producto.id
+          item.id === produto.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       }
-      return [...prev, { ...producto, quantity: 1 }]
+      return [...prev, { ...produto, quantity: 1 }]
     })
   }
 
@@ -112,7 +112,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const procesarVenta = async (metodoPago: string, tipoDte: string, clienteId?: string) => {
     if (!user || !empresaId || !sucursalId || carrito.length === 0) {
-      return { success: false, error: 'Datos incompletos para procesar venta' }
+      return { success: false, error: 'Dados incompletos para processar venda' }
     }
 
     try {
@@ -142,7 +142,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Create sale items
       const ventaItems = carrito.map(item => ({
         venta_id: venta.id,
-        producto_id: item.id,
+        produto_id: item.id,
         cantidad: item.quantity,
         precio_unitario: item.precio,
         subtotal: item.precio * item.quantity
@@ -157,13 +157,13 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: true, venta }
     } catch (error) {
       console.error('Error processing sale:', error)
-      return { success: false, error: 'Error al procesar la venta' }
+      return { success: false, error: 'Erro ao processar a venda' }
     }
   }
 
   const crearCliente = async (clienteData: any) => {
     if (!empresaId) {
-      return { success: false, error: 'No hay empresa seleccionada' }
+      return { success: false, error: 'Nenhuma empresa selecionada' }
     }
 
     try {
@@ -181,7 +181,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: true, cliente }
     } catch (error) {
       console.error('Error creating client:', error)
-      return { success: false, error: 'Error al crear cliente' }
+      return { success: false, error: 'Erro ao criar cliente' }
     }
   }
 
@@ -269,7 +269,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [empresaId])
 
   const value = {
-    productos,
+    produtos,
     loading,
     loadProductos,
     carrito,
@@ -287,4 +287,4 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }
 
   return <POSContext.Provider value={value}>{children}</POSContext.Provider>
-}
+}</parameter>
