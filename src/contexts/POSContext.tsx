@@ -15,7 +15,6 @@ interface POSContextType {
   // Cart
   carrito: CartItem[]
   total: number
-  addToCart: (produto: Produto) => void
   addToCart: (produto: Producto) => void
   removeFromCart: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
