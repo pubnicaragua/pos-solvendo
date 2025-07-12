@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase, Produto, Cliente, Venta } from '../lib/supabase'
+import { supabase, Producto, Cliente, Venta } from '../lib/supabase'
 import { useAuth } from './AuthContext'
 import toast from 'react-hot-toast'
 
-interface CartItem extends Produto {
+interface CartItem extends Producto {
   quantity: number
 }
 
@@ -17,9 +17,9 @@ interface DraftSale {
 
 interface POSContextType {
   // Products
-  produtos: Produto[]
+  productos: Producto[]
   loading: boolean
-  loadProdutos: () => Promise<void>
+  loadProductos: () => Promise<void>
   
   // Cart
   carrito: CartItem[]
@@ -65,7 +65,7 @@ export const usePOS = () => {
 }
 
 export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [produtos, setProdutos] = useState<Produto[]>([])
+  const [productos, setProductos] = useState<Producto[]>([])
   const [loading, setLoading] = useState(false)
   const [carrito, setCarrito] = useState<CartItem[]>([])
   const [borradores, setBorradores] = useState<DraftSale[]>([])
@@ -75,22 +75,22 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const total = carrito.reduce((sum, item) => sum + (item.precio * item.quantity), 0)
 
-  const loadProdutos = async () => {
+  const loadProductos = async () => {
     if (!empresaId) return
     
     setLoading(true)
     try {
       const { data, error } = await supabase
-        .from('produtos')
+        .from('productos')
         .select('*')
         .eq('empresa_id', empresaId)
         .eq('activo', true)
         .order('nombre')
 
       if (error) throw error
-      setProdutos(data || [])
+      setProductos(data || [])
     } catch (error) {
-      console.error('Error loading produtos:', error)
+      console.error('Error loading productos:', error)
     } finally {
       setLoading(false)
     }
@@ -213,18 +213,18 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       // Aplicar la promoción según su tipo
       const newCarrito = [...carrito]
-      const produto = newCarrito[produtoIndex]
+      const producto = newCarrito[produtoIndex]
 
       if (promocion.tipo === 'descuento_porcentaje') {
-        const descuento = produto.precio * (promocion.valor / 100)
+        const descuento = producto.precio * (promocion.valor / 100)
         newCarrito[produtoIndex] = {
-          ...produto,
-          precio: produto.precio - descuento
+          ...producto,
+          precio: producto.precio - descuento
         }
       } else if (promocion.tipo === 'descuento_monto') {
         newCarrito[produtoIndex] = {
-          ...produto,
-          precio: Math.max(0, produto.precio - promocion.valor)
+          ...producto,
+          precio: Math.max(0, producto.precio - promocion.valor)
         }
       }
 
@@ -238,17 +238,17 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }
 
-  const addToCart = (produto: Produto) => {
+  const addToCart = (producto: Producto) => {
     setCarrito(prev => {
-      const existing = prev.find(item => item.id === produto.id)
+      const existing = prev.find(item => item.id === producto.id)
       if (existing) {
         return prev.map(item =>
-          item.id === produto.id
+          item.id === producto.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       }
-      return [...prev, { ...produto, quantity: 1 }]
+      return [...prev, { ...producto, quantity: 1 }]
     })
   }
 
@@ -429,16 +429,16 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     if (empresaId) {
-      loadProdutos()
+      loadProductos()
       loadPromociones()
       loadBorradores()
     }
   }, [empresaId])
 
   const value = {
-    produtos: produtos,
+    productos: productos,
     loading: loading,
-    loadProdutos: loadProdutos,
+    loadProductos: loadProductos,
     carrito: carrito,
     total: total,
     addToCart: addToCart,
