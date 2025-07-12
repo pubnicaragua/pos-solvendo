@@ -17,19 +17,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onAction }) =
     { id: 'despacho', label: 'Despacho', icon: Truck },
     { id: 'devolucion', label: 'Devolución', icon: RotateCcw },
     { id: 'promociones', label: 'Promociones', icon: Star },
-    { id: 'cierre', label: 'Cierre de caja', icon: DollarSign }
+    { id: 'cierre', label: 'Cierre de caja', icon: DollarSign },
+    { id: 'arqueo', label: 'Arqueo de caja', icon: DollarSign },
+    { id: 'historial-movimientos', label: 'Historial movimientos', icon: TrendingUp },
+    { id: 'categorias', label: 'Gestión categorías', icon: Star },
+    { id: 'codigos-barras', label: 'Códigos de barras', icon: Star },
+    { id: 'historial-cliente', label: 'Historial cliente', icon: Star }
   ]
 
   return (
     <div className="fixed inset-0 z-50 flex">
       {/* Overlay */}
       <div 
-        className="flex-1 bg-black bg-opacity-50"
+        className="bg-black bg-opacity-50 flex-1"
         onClick={onClose}
       />
       
-      {/* Sidebar - Opens from RIGHT */}
-      <div className="w-80 bg-white h-full shadow-xl">
+      {/* Sidebar - Opens from LEFT */}
+      <div className="w-80 bg-white h-full shadow-xl order-first">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Módulos</h2>
           <button

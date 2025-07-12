@@ -8,7 +8,7 @@ interface CartItem extends Producto {
 
 interface POSContextType {
   // Products
-  produtos: Producto[]
+  productos: Producto[]
   loading: boolean
   loadProductos: () => Promise<void>
   
@@ -45,7 +45,7 @@ export const usePOS = () => {
 }
 
 export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [produtos, setProductos] = useState<Producto[]>([])
+  const [productos, setProductos] = useState<Producto[]>([])
   const [loading, setLoading] = useState(false)
   const [carrito, setCarrito] = useState<CartItem[]>([])
   const [cajaAbierta, setCajaAbierta] = useState(false)
@@ -270,7 +270,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [empresaId])
 
   const value = {
-    produtos,
+    productos,
     loading,
     loadProductos,
     carrito,

@@ -61,7 +61,7 @@ export const Dashboard: React.FC = () => {
     switch (activeTab) {
       case 'destacado':
         return matchesSearch && produto.destacado
-      case 'produtos': 
+      case 'productos': 
         return matchesSearch
       default:
         return matchesSearch
@@ -168,7 +168,7 @@ export const Dashboard: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <Users className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">Clientes</span>
+              <span className="text-sm font-medium text-blue-800">Productos / Servicios</span>
             </div>
             <div className="relative mb-4">
               <input
@@ -326,7 +326,7 @@ export const Dashboard: React.FC = () => {
             </div>
             
             <select className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4 text-sm">
-              <option>Boleta manual (No válido al SII)</option>
+              <option>Productos totales</option>
             </select>
 
             <div className="space-y-3 mb-6">
@@ -366,7 +366,7 @@ export const Dashboard: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Cliente"
+                placeholder="Buscar productos..."
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg"
               />
             </div>
@@ -410,7 +410,7 @@ export const Dashboard: React.FC = () => {
           {[
             { id: 'destacado', label: 'Destacado', icon: Star },
             { id: 'borradoras', label: 'Borradoras', icon: FileText },
-            { id: 'produtos', label: 'Produtos', icon: Package },
+            { id: 'productos', label: 'Productos', icon: Package },
             { id: 'clientes', label: 'Clientes', icon: Users }
           ].map(({ id, label, icon: Icon }) => (
             <button

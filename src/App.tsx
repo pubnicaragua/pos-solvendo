@@ -8,6 +8,14 @@ import { CashMovementPage } from './pages/CashMovementPage'
 import { ReprintPage } from './pages/ReprintPage'
 import { ReportsPage } from './pages/ReportsPage'
 import { DeliveryPage } from './pages/DeliveryPage'
+import { CashClosePage } from './pages/CashClosePage'
+import { ReturnsPage } from './pages/ReturnsPage'
+import { CashAuditPage } from './pages/CashAuditPage'
+import { CashHistoryPage } from './pages/CashHistoryPage'
+import { CategoriesPage } from './pages/CategoriesPage'
+import { BarcodePage } from './pages/BarcodePage'
+import { CustomerHistoryPage } from './pages/CustomerHistoryPage'
+import { PromotionsPage } from './pages/PromotionsPage'
 import { POSLayout } from './components/pos/POSLayout'
 
 const AppRoutes: React.FC = () => {
@@ -34,6 +42,14 @@ const AppRoutes: React.FC = () => {
           <Route path="/reimprimir" element={<ReprintPage onClose={() => {}} />} />
           <Route path="/reportes" element={<ReportsPage onClose={() => {}} />} />
           <Route path="/despacho" element={<DeliveryPage onClose={() => {}} />} />
+          <Route path="/cierre" element={<CashClosePage onClose={() => {}} />} />
+          <Route path="/devolucion" element={<ReturnsPage onClose={() => {}} />} />
+          <Route path="/arqueo" element={<CashAuditPage onClose={() => {}} />} />
+          <Route path="/historial-movimientos" element={<CashHistoryPage onClose={() => {}} />} />
+          <Route path="/categorias" element={<CategoriesPage onClose={() => {}} />} />
+          <Route path="/codigos-barras" element={<BarcodePage onClose={() => {}} />} />
+          <Route path="/historial-cliente" element={<CustomerHistoryPage onClose={() => {}} />} />
+          <Route path="/promociones" element={<PromotionsPage onClose={() => {}} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </POSLayout>
