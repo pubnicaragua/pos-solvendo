@@ -76,6 +76,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (rut: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true)
+      
+      // Validación simple para demo
+      if (rut !== '78.168.951-3' || password !== '123456') {
+        return { success: false, error: 'Credenciales incorrectas' };
+      }
 
       // Datos de usuario de prueba para evitar errores
       const mockUser = {

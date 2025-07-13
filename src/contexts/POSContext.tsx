@@ -394,14 +394,14 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const checkCajaStatus = async () => {
     if (!user) return
 
-    // Simular que la caja está cerrada para que se muestre el modal de apertura
+    // Siempre mostrar como cerrada para que aparezca el modal de apertura
     setCajaAbierta(false)
   }
 
   const openCaja = async (montoInicial: number) => {
     if (!user || !empresaId || !sucursalId) return false
 
-    // Simulamos apertura exitosa
+    // Apertura exitosa sin intentar conectar a Supabase
     setCajaAbierta(true)
     toast.success('Caja aperturada correctamente')
     return true

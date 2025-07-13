@@ -15,7 +15,7 @@ export const LoginForm: React.FC = () => {
   const handleSupervisorAuth = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!supervisorRut || !supervisorPassword) {
-      setError('Por favor completa todos los campos')
+      setError('Por favor ingresa RUT y contraseña')
       return
     }
 
@@ -23,8 +23,8 @@ export const LoginForm: React.FC = () => {
     setError('')
 
     try {
-      // Simplificamos el proceso para evitar problemas
-      const loginResult = await login(supervisorRut, supervisorPassword)
+      // Validación simple para demo
+      const loginResult = await login(supervisorRut.trim(), supervisorPassword.trim())
       if (!loginResult.success) {
         setError(loginResult.error || 'Error en el login')
         toast.error('Error en el login')
@@ -50,7 +50,7 @@ export const LoginForm: React.FC = () => {
               <Shield className="w-8 h-8 text-orange-600" />
             </div>
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">Iniciar Sesión</h2>
-            <p className="text-gray-600">Ingrese sus credenciales</p>
+            <p className="text-gray-600">Ingrese sus credenciales (78.168.951-3 / 123456)</p>
           </div>
 
           <form onSubmit={handleSupervisorAuth} className="space-y-6">

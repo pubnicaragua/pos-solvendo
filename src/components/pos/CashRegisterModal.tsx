@@ -30,19 +30,17 @@ export const CashRegisterModal: React.FC<CashRegisterModalProps> = ({
     setLoading(true)
     
     try {
-      // Simulamos apertura exitosa
-      setTimeout(() => {
-        toast.success('Caja aperturada correctamente')
+      const success = await openCaja(parseFloat(amount))
+      if (success) {
         onClose()
-        setAmount('')
-        setLoading(false)
-      }, 1000)
+      }
     } catch (error) {
       console.error('Error opening cash register:', error)
       toast.error('Error al abrir caja')
       setLoading(false)
+      setLoading(false)
     } finally {
-      // setLoading(false) - Moved to setTimeout
+      setLoading(false)
     }
   }
 
