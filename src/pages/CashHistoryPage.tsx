@@ -64,6 +64,9 @@ export const CashHistoryPage: React.FC<CashHistoryPageProps> = ({ onClose }) => 
     } finally {
       setLoading(false)
     }
+  }
+  
+  const handleDelete = async (id: string) => {
     if (!confirm('¿Está seguro de eliminar este movimiento?')) return
     
     try {

@@ -26,15 +26,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onAction }) =
   ]
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-row-reverse">
+    <div className="fixed inset-0 z-50 flex">
       {/* Overlay */}
       <div 
         className="bg-black bg-opacity-50 flex-1"
         onClick={onClose}
       />
       
-      {/* Sidebar - Opens from LEFT (order-first) */}
-      <div className="w-80 bg-white h-full shadow-xl order-first">
+      {/* Sidebar - Opens from LEFT */}
+      <div className="w-80 bg-white h-full shadow-xl">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Módulos</h2>
           <button

@@ -100,18 +100,33 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!empresaId || !user) return
     
     try {
-      const { data, error } = await supabase
-        .from('borradores_venta')
-        .select('*')
-        .eq('empresa_id', empresaId)
-        .eq('usuario_id', user.id)
-        .order('created_at', { ascending: false })
+      // Verificar si la tabla existe
+      const { error: checkError } = await supabase
+        .rpc('check_table_exists', { table_name: 'borradores_venta' })
+      
+      if (checkError) {
+        console.error('Error checking table:', checkError)
+        setBorradores([])
+        return
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('borradores_venta')
+          .select('*')
+          .eq('empresa_id', empresaId)
+          .eq('usuario_id', user.id)
+          .order('created_at', { ascending: false })
 
-      if (error) throw error
-      setBorradores(data || [])
+        if (error) throw error
+        setBorradores(data || [])
+      } catch (error) {
+        console.error('Error loading drafts:', error)
+        setBorradores([])
+      }
     } catch (error) {
       console.error('Error loading drafts:', error)
-      toast.error('Error al cargar borradores')
+      setBorradores([])
     }
   }
 
