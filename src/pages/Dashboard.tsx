@@ -16,8 +16,6 @@ import { useNavigate } from 'react-router-dom'
 import { Logo } from '../components/common/Logo'
 import toast from 'react-hot-toast'
 
-const Dashboard: React.FC = () => {
-
 export const Dashboard: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'destacado' | 'borradores' | 'productos' | 'clientes'>('destacado')
