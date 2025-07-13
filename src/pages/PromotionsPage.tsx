@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Percent, Search, Plus, Edit, Trash2 } from 'lucide-react'
+import { Percent, Search, Plus, Edit, Trash2, X } from 'lucide-react'
 import { HeaderWithMenu } from '../components/common/HeaderWithMenu'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
@@ -138,34 +138,26 @@ export const PromotionsPage: React.FC<PromotionsPageProps> = ({ onClose }) => {
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <HeaderWithMenu title="Promociones" icon={<Percent className="w-6 h-6 text-gray-600" />} />
-            <button
-              onClick={() => setShowModal(true)}
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Nueva promoción
-            </button>
-            <span className="text-sm text-gray-600">22:00</span>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">EA</span>
-              </div>
-              <span className="text-sm font-medium text-gray-900">Emilio Aguilera</span>
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Main Content */}
       <div className="flex-1 p-6">
         {/* Search Bar */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Buscar promociones..."
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+        <div className="flex items-center justify-between mb-6">
+          <div className="relative flex-1 mr-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Buscar promociones..."
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Nueva promoción
+          </button>
         </div>
 
         {/* Promotions List */}
@@ -217,9 +209,29 @@ export const PromotionsPage: React.FC<PromotionsPageProps> = ({ onClose }) => {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {editingPromotion ? 'Editar promoción' : 'Nueva promoción'}
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {editingPromotion ? 'Editar promoción' : 'Nueva promoción'}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowModal(false)
+                  setEditingPromotion(null)
+                  setFormData({
+                    nombre: '',
+                    descripcion: '',
+                    tipo: 'descuento_porcentaje',
+                    valor: 0,
+                    fecha_inicio: '',
+                    fecha_fin: '',
+                    activo: true
+                  })
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
 
             <div className="space-y-4">
               <div>

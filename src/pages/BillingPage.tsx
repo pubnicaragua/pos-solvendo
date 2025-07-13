@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { ClientModal } from '../components/pos/ClientModal'
 import { Cliente } from '../lib/supabase'
 import toast from 'react-hot-toast'
+import { supabase } from '../lib/supabase'
 
 interface BillingPageProps {
   onClose: () => void
@@ -195,16 +196,6 @@ export const BillingPage: React.FC<BillingPageProps> = ({ onClose }) => {
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <HeaderWithMenu title="Facturación" icon={<FileText className="w-6 h-6 text-gray-600" />} />
-            <span className="text-sm text-gray-600">22:00</span>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">EA</span>
-              </div>
-              <span className="text-sm font-medium text-gray-900">Emilio Aguilera</span>
-            </div>
-          </div>
-        </div>
-      </header>
 
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-4xl mx-auto">

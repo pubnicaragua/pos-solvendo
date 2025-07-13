@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Star, Plus, Edit, Trash2, Search } from 'lucide-react'
+import { Star, Plus, Edit, Trash2, Search, X } from 'lucide-react'
 import { HeaderWithMenu } from '../components/common/HeaderWithMenu'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
@@ -119,35 +119,27 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({ onClose }) => {
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <HeaderWithMenu title="Gestión de categorías" icon={<Star className="w-6 h-6 text-gray-600" />} />
-            <button
-              onClick={() => setShowModal(true)}
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Nueva categoría
-            </button>
-            <span className="text-sm text-gray-600">22:00</span>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">EA</span>
-              </div>
-              <span className="text-sm font-medium text-gray-900">Emilio Aguilera</span>
-            </div>
-          </div>
-        </div>
-      </header>
 
       <div className="flex-1 p-6 overflow-y-auto">
         {/* Search Bar */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Buscar categorías..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+        <div className="flex items-center justify-between mb-6">
+          <div className="relative flex-1 mr-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Buscar categorías..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Nueva categoría
+          </button>
         </div>
 
         {/* Categories Grid */}

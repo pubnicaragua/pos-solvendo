@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { BarChart3, Filter, Download, RefreshCw, Calendar } from 'lucide-react'
+import { BarChart3, Filter, Download, RefreshCw, Calendar, X } from 'lucide-react'
 import { HeaderWithMenu } from '../components/common/HeaderWithMenu'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
@@ -92,34 +92,7 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
     <div className="h-screen bg-gray-50 flex flex-col relative">
       {/* Header */}
       <HeaderWithMenu title="Reportes" icon={<BarChart3 className="w-6 h-6 text-gray-600" />} />
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <Filter className="w-4 h-4" />
-              Filtros
-            </button>
-            <button
-              onClick={loadReportData}
-              className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Actualizar
-            </button>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">22:00</span>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-medium">EA</span>
-                </div>
-                <span className="text-sm font-medium text-gray-900">Emilio Aguilera</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
       <div className="flex-1 p-6">
         {/* KPI Cards */}
         <div className="grid grid-cols-5 gap-4 mb-6">

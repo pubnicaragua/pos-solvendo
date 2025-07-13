@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Printer, Search, Calendar } from 'lucide-react'
+import { Printer, Search, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { HeaderWithMenu } from '../components/common/HeaderWithMenu'
@@ -246,16 +246,6 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <HeaderWithMenu title="Reimprimir" icon={<Printer className="w-6 h-6 text-gray-600" />} />
-            <span className="text-sm text-gray-600">22:00</span>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">EA</span>
-              </div>
-              <span className="text-sm font-medium text-gray-900">Emilio Aguilera</span>
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Main Content */}
       <div className="flex-1 flex">
@@ -280,7 +270,6 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
                   onChange={(e) => setSelectedDate(e.target.value)}
                   className="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm"
                 />
-                <Calendar className="w-5 h-5 text-gray-400" />
               </div>
               
               <div className="relative">
