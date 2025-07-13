@@ -6,6 +6,7 @@ interface SidebarContextType {
   toggleSidebar: () => void
   closeSidebar: () => void
   handleSidebarAction: (action: string) => void
+  openSidebar: () => void
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined)
@@ -28,6 +29,10 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const closeSidebar = () => {
     setIsOpen(false)
+  }
+  
+  const openSidebar = () => {
+    setIsOpen(true)
   }
 
   const handleSidebarAction = (action: string) => {
@@ -83,7 +88,8 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     isOpen,
     toggleSidebar,
     closeSidebar,
-    handleSidebarAction
+    handleSidebarAction,
+    openSidebar
   }
 
   return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>

@@ -12,7 +12,7 @@ export const POSLayout: React.FC<POSLayoutProps> = ({ children }) => {
   const [showCashModal, setShowCashModal] = useState(false)
   const [cashModalType, setCashModalType] = useState<'open' | 'close'>('open')
   const { cajaAbierta, checkCajaStatus } = usePOS()
-  const { isOpen, toggleSidebar } = useSidebar()
+  const { isOpen } = useSidebar()
 
   // Check cash register status on mount
   useEffect(() => {
@@ -36,7 +36,7 @@ export const POSLayout: React.FC<POSLayoutProps> = ({ children }) => {
 
   return (
     <>
-      <Sidebar />
+      <Sidebar isOpen={isOpen} />
       {children}
 
       {/* Cash Register Modal */}

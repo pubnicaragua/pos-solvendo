@@ -27,6 +27,7 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
   const [showEmailModal, setShowEmailModal] = useState(false)
   const { empresaId } = useAuth()
   const [printDialogVisible, setPrintDialogVisible] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (empresaId) {
@@ -60,6 +61,20 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
       return;
     }
 
+    if (!empresaId) {
+      // Si no hay empresaId, usar datos de ejemplo
+      setDocuments([
+        {
+          id: '1',
+          folio: 'N°9',
+          tipo: 'Boleta manual (no válida al SII)',
+          total: 204,
+          fecha_emision: new Date().toISOString()
+        }
+      ]);
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -69,7 +84,7 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
         .eq('fecha::date', selectedDate)
         .order('fecha', { ascending: false })
 
-      if (error) throw error
+      if (error) throw new Error(JSON.stringify(error))
       
       if (!data || data.length === 0) {
         // Si no hay datos, usar datos de ejemplo
@@ -97,6 +112,8 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
       setDocuments(docs)
     } catch (error) {
       console.error('Error loading documents:', error)
+    } finally {
+      setLoading(false)
     }
   }
 

@@ -2,6 +2,7 @@ import React from 'react'
 import { Menu } from 'lucide-react'
 import { useSidebar } from '../../contexts/SidebarContext'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 
 interface HeaderWithMenuProps {
   title: string
@@ -14,11 +15,23 @@ export const HeaderWithMenu: React.FC<HeaderWithMenuProps> = ({
   icon,
   showBackButton = true
 }) => {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, openSidebar } = useSidebar()
   const navigate = useNavigate()
+  const { user } = useAuth()
+  
+  const userName = user ? `${user.nombre} ${user.apellidos}` : 'Usuario'
+  const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
 
   const handleBack = () => {
     navigate('/')
+  }
+  
+  const getCurrentTime = () => {
+    return new Date().toLocaleTimeString('es-CL', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    })
   }
 
   return (
@@ -26,7 +39,7 @@ export const HeaderWithMenu: React.FC<HeaderWithMenuProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            onClick={showBackButton ? handleBack : toggleSidebar}
+            onClick={showBackButton ? handleBack : openSidebar}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             {showBackButton ? icon : <Menu className="w-6 h-6 text-gray-600" />}
@@ -35,14 +48,12 @@ export const HeaderWithMenu: React.FC<HeaderWithMenuProps> = ({
         </div>
         
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">
-            {new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false })}
-          </span>
+          <span className="text-sm text-gray-600">{getCurrentTime()}</span>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">EA</span>
+              <span className="text-white text-sm font-medium">{userInitials}</span>
             </div>
-            <span className="text-sm font-medium text-gray-900">Emilio Aguilera</span>
+            <span className="text-sm font-medium text-gray-900">{userName}</span>
           </div>
         </div>
       </div>

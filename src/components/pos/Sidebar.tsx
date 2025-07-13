@@ -2,8 +2,12 @@ import React from 'react'
 import { X, TrendingUp, Printer, BarChart3, Truck, RotateCcw, DollarSign, Star, Users, Scan, History } from 'lucide-react'
 import { useSidebar } from '../../contexts/SidebarContext'
 
-export const Sidebar: React.FC = () => {
-  const { isOpen, closeSidebar, handleSidebarAction } = useSidebar()
+interface SidebarProps {
+  isOpen: boolean
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
+  const { closeSidebar, handleSidebarAction } = useSidebar()
   
   // Siempre renderizar el sidebar, pero ocultarlo cuando no está abierto
   const sidebarClasses = isOpen 
@@ -34,7 +38,7 @@ export const Sidebar: React.FC = () => {
       />
       
       {/* Sidebar - Opens from left */}
-      <div className={`w-80 bg-white h-full shadow-xl transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`w-80 bg-white h-full shadow-xl transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} overflow-y-auto`}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Módulos</h2>
           <button
@@ -48,14 +52,14 @@ export const Sidebar: React.FC = () => {
         <nav className="p-6">
           <div className="space-y-2">
             {menuItems.map((item) => (
-              <button
+              <a
                 key={item.id}
                 onClick={() => handleSidebarAction(item.id)}
-                className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
               >
                 <item.icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
-              </button>
+              </a>
             ))}
           </div>
         </nav>

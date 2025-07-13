@@ -67,6 +67,7 @@ export const usePOS = () => {
 export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [productos, setProductos] = useState<Producto[]>([])
   const [loading, setLoading] = useState(false)
+  const [loadingDrafts, setLoadingDrafts] = useState(false)
   const [carrito, setCarrito] = useState<CartItem[]>([])
   const [borradores, setBorradores] = useState<DraftSale[]>([])
   const [promociones, setPromociones] = useState<any[]>([])
@@ -78,7 +79,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const loadProductos = async () => {
     if (!empresaId) return
     
-    setLoading(true);
+    setLoading(true)
     try {
       // Intentar obtener datos de Supabase
       const { data, error } = await supabase
@@ -88,7 +89,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .eq('activo', true);
 
       if (error) {
-        console.error('Error loading productos:', error);
+        console.error('Error loading productos:', error)
         // Fallback a datos de ejemplo si hay error
         setProductos([
           {
@@ -143,12 +144,12 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }
-        ]);
+        ])
       } else {
-        setProductos(data || []);
+        setProductos(data || [])
       }
     } catch (error) {
-      console.error('Error loading productos:', error);
+      console.error('Error loading productos:', error)
       // Usar datos de ejemplo en caso de error
       setProductos([
         {
@@ -205,28 +206,51 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       ]);
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   const loadBorradores = async () => {
     if (!empresaId || !user) return
     
-    // Usar datos de ejemplo para evitar errores
-    setBorradores([
-      {
-        id: '1',
-        nombre: 'Borrador de prueba',
-        fecha: new Date().toISOString(),
-        items: [],
-        total: 0
+    setLoadingDrafts(true)
+    try {
+      const { data, error } = await supabase
+        .from('borradores_venta')
+        .select('*')
+        .eq('empresa_id', empresaId)
+        .eq('usuario_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      
+      if (data && data.length > 0) {
+        setBorradores(data)
+      } else {
+        // Si no hay datos, usar datos de ejemplo
+        setBorradores([])
       }
-    ])
+    } catch (error) {
+      console.error('Error loading drafts:', error)
+      // Usar datos de ejemplo en caso de error
+      setBorradores([
+        {
+          id: '1',
+          nombre: 'Borrador de prueba',
+          fecha: new Date().toISOString(),
+          items: [],
+          total: 0
+        }
+      ])
+    } finally {
+      setLoadingDrafts(false)
+    }
   }
 
   const saveDraft = async (nombre: string) => {
     if (!empresaId || !user || carrito.length === 0) return false
     
+    setLoadingDrafts(true)
     try {
       const { error } = await supabase
         .from('borradores_venta')
@@ -247,10 +271,13 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error('Error saving draft:', error)
       toast.error('Error al guardar borrador')
       return false
+    } finally {
+      setLoadingDrafts(false)
     }
   }
 
   const loadDraft = async (draftId: string) => {
+    setLoadingDrafts(true)
     try {
       const { data, error } = await supabase
         .from('borradores_venta')
@@ -261,17 +288,26 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (error) throw error
       if (!data) return false
 
-      setCarrito(data.items || [])
+      // Asegurarse de que los items tengan la propiedad quantity
+      const items = (data.items || []).map((item: any) => ({
+        ...item,
+        quantity: item.quantity || 1
+      }))
+      
+      setCarrito(items)
       toast.success('Borrador cargado correctamente')
       return true
     } catch (error) {
       console.error('Error loading draft:', error)
       toast.error('Error al cargar borrador')
       return false
+    } finally {
+      setLoadingDrafts(false)
     }
   }
 
   const deleteDraft = async (draftId: string) => {
+    setLoadingDrafts(true)
     try {
       const { error } = await supabase
         .from('borradores_venta')
@@ -287,6 +323,8 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error('Error deleting draft:', error)
       toast.error('Error al eliminar borrador')
       return false
+    } finally {
+      setLoadingDrafts(false)
     }
   }
 

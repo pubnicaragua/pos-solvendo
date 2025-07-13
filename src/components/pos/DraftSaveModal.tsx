@@ -6,37 +6,22 @@ import toast from 'react-hot-toast'
 interface DraftSaveModalProps {
   isOpen: boolean
   onClose: () => void
+  draftName: string
+  setDraftName: (name: string) => void
+  onSave: () => void
 }
 
 export const DraftSaveModal: React.FC<DraftSaveModalProps> = ({
   isOpen,
-  onClose
+  onClose,
+  draftName,
+  setDraftName,
+  onSave
 }) => {
-  const [draftName, setDraftName] = useState('')
   const [loading, setLoading] = useState(false)
   const { saveDraft, carrito } = usePOS()
 
   if (!isOpen) return null
-
-  const handleSaveDraft = async () => {
-    if (!draftName.trim()) {
-      toast.error('Ingrese un nombre para el borrador')
-      return
-    }
-
-    if (carrito.length === 0) {
-      toast.error('No hay productos en el carrito')
-      return
-    }
-
-    setLoading(true)
-    const success = await saveDraft(draftName)
-    setLoading(false)
-
-    if (success) {
-      onClose()
-    }
-  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -74,7 +59,7 @@ export const DraftSaveModal: React.FC<DraftSaveModalProps> = ({
             >
               Cancelar
             </button>
-            <button
+                onClick={onSave}
               onClick={handleSaveDraft}
               disabled={!draftName.trim() || loading || carrito.length === 0}
               className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
