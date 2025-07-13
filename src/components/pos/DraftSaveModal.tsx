@@ -59,8 +59,8 @@ export const DraftSaveModal: React.FC<DraftSaveModalProps> = ({
             >
               Cancelar
             </button>
-                onClick={onSave}
-              onClick={handleSaveDraft}
+            <button
+              onClick={onSave}
               disabled={!draftName.trim() || loading || carrito.length === 0}
               className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
