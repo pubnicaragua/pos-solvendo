@@ -78,62 +78,135 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const loadProductos = async () => {
     if (!empresaId) return
     
-    // Usar datos de ejemplo directamente para evitar errores de conexión
-    setProductos([
-      {
-        id: 'f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-        empresa_id: empresaId,
-        codigo: 'PROD001',
-        nombre: 'Ejemplo producto 1',
-        descripcion: 'Producto de ejemplo para pruebas',
-        precio: 34.5,
-        destacado: true,
-        activo: true,
-        stock: 100,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: 'f2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-        empresa_id: empresaId,
-        codigo: 'PROD002',
-        nombre: 'Ejemplo producto 2',
-        descripcion: 'Segundo producto de ejemplo',
-        precio: 68.5,
-        destacado: false,
-        activo: true,
-        stock: 50,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: 'f3eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-        empresa_id: empresaId,
-        codigo: 'PROD003',
-        nombre: 'Ejemplo producto 3',
-        descripcion: 'Tercer producto de ejemplo',
-        precio: 45.0,
-        destacado: true,
-        activo: true,
-        stock: 75,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: 'f4eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-        empresa_id: empresaId,
-        codigo: 'PROD004',
-        nombre: 'Ejemplo producto 4',
-        descripcion: 'Cuarto producto de ejemplo',
-        precio: 22.5,
-        destacado: true,
-        activo: true,
-        stock: 120,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+    setLoading(true);
+    try {
+      // Intentar obtener datos de Supabase
+      const { data, error } = await supabase
+        .from('productos')
+        .select('*')
+        .eq('empresa_id', empresaId)
+        .eq('activo', true);
+
+      if (error) {
+        console.error('Error loading productos:', error);
+        // Fallback a datos de ejemplo si hay error
+        setProductos([
+          {
+            id: 'f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+            empresa_id: empresaId,
+            codigo: 'PROD001',
+            nombre: 'Ejemplo producto 1',
+            descripcion: 'Producto de ejemplo para pruebas',
+            precio: 34.5,
+            destacado: true,
+            activo: true,
+            stock: 100,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: 'f2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+            empresa_id: empresaId,
+            codigo: 'PROD002',
+            nombre: 'Ejemplo producto 2',
+            descripcion: 'Segundo producto de ejemplo',
+            precio: 68.5,
+            destacado: false,
+            activo: true,
+            stock: 50,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: 'f3eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+            empresa_id: empresaId,
+            codigo: 'PROD003',
+            nombre: 'Ejemplo producto 3',
+            descripcion: 'Tercer producto de ejemplo',
+            precio: 45.0,
+            destacado: true,
+            activo: true,
+            stock: 75,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: 'f4eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+            empresa_id: empresaId,
+            codigo: 'PROD004',
+            nombre: 'Ejemplo producto 4',
+            descripcion: 'Cuarto producto de ejemplo',
+            precio: 22.5,
+            destacado: true,
+            activo: true,
+            stock: 120,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ]);
+      } else {
+        setProductos(data || []);
       }
-    ]);
-    setLoading(false);
+    } catch (error) {
+      console.error('Error loading productos:', error);
+      // Usar datos de ejemplo en caso de error
+      setProductos([
+        {
+          id: 'f1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+          empresa_id: empresaId,
+          codigo: 'PROD001',
+          nombre: 'Ejemplo producto 1',
+          descripcion: 'Producto de ejemplo para pruebas',
+          precio: 34.5,
+          destacado: true,
+          activo: true,
+          stock: 100,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'f2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+          empresa_id: empresaId,
+          codigo: 'PROD002',
+          nombre: 'Ejemplo producto 2',
+          descripcion: 'Segundo producto de ejemplo',
+          precio: 68.5,
+          destacado: false,
+          activo: true,
+          stock: 50,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'f3eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+          empresa_id: empresaId,
+          codigo: 'PROD003',
+          nombre: 'Ejemplo producto 3',
+          descripcion: 'Tercer producto de ejemplo',
+          precio: 45.0,
+          destacado: true,
+          activo: true,
+          stock: 75,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'f4eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+          empresa_id: empresaId,
+          codigo: 'PROD004',
+          nombre: 'Ejemplo producto 4',
+          descripcion: 'Cuarto producto de ejemplo',
+          precio: 22.5,
+          destacado: true,
+          activo: true,
+          stock: 120,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const loadBorradores = async () => {

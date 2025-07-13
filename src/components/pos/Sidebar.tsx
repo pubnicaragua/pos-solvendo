@@ -5,7 +5,10 @@ import { useSidebar } from '../../contexts/SidebarContext'
 export const Sidebar: React.FC = () => {
   const { isOpen, closeSidebar, handleSidebarAction } = useSidebar()
   
-  if (!isOpen) return null
+  // Siempre renderizar el sidebar, pero ocultarlo cuando no está abierto
+  const sidebarClasses = isOpen 
+    ? "fixed inset-0 z-50 flex" 
+    : "fixed inset-0 z-50 flex pointer-events-none";
 
   const menuItems = [
     { id: 'movimiento', label: 'Movimiento', icon: TrendingUp },
@@ -23,15 +26,15 @@ export const Sidebar: React.FC = () => {
   ]
 
   return (
-    <div className="fixed inset-0 z-50 flex">
+    <div className={sidebarClasses}>
       {/* Overlay */}
       <div 
-        className="bg-black bg-opacity-50 flex-grow"
+        className={`bg-black transition-opacity duration-300 ${isOpen ? 'bg-opacity-50' : 'bg-opacity-0 pointer-events-none'} flex-grow`}
         onClick={closeSidebar}
       />
       
       {/* Sidebar - Opens from left */}
-      <div className="w-80 bg-white h-full shadow-xl">
+      <div className={`w-80 bg-white h-full shadow-xl transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Módulos</h2>
           <button
