@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { X, Search, Calendar, User, FileText, Download } from 'lucide-react'
+import { User, Search, Calendar, FileText, Download } from 'lucide-react'
+import { HeaderWithMenu } from '../components/common/HeaderWithMenu'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { Cliente } from '../lib/supabase'
@@ -98,19 +99,7 @@ export const CustomerHistoryPage: React.FC<CustomerHistoryPageProps> = ({ onClos
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-6 h-6 text-gray-600" />
-            </button>
-            <span className="text-lg font-semibold text-gray-900">Historial de cliente</span>
-          </div>
-          
-          <div className="flex items-center gap-4">
+      <HeaderWithMenu title="Historial de cliente" icon={<User className="w-6 h-6 text-gray-600" />} />
             <span className="text-sm text-gray-600">22:00</span>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">

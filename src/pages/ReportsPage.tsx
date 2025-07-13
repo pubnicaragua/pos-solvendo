@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { BarChart3, Filter, X, Download, RefreshCw, Calendar } from 'lucide-react'
+import { BarChart3, Filter, Download, RefreshCw, Calendar } from 'lucide-react'
+import { HeaderWithMenu } from '../components/common/HeaderWithMenu'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
@@ -90,19 +91,7 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ onClose }) => {
   return (
     <div className="h-screen bg-gray-50 flex flex-col relative">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <BarChart3 className="w-6 h-6 text-gray-600" />
-            </button>
-            <span className="text-lg font-semibold text-gray-900">Reportes</span>
-          </div>
-          
-          <div className="flex items-center gap-3">
+      <HeaderWithMenu title="Reportes" icon={<BarChart3 className="w-6 h-6 text-gray-600" />} />
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"

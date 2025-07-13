@@ -1,13 +1,10 @@
 import React from 'react'
 import { X, TrendingUp, Printer, BarChart3, Truck, RotateCcw, DollarSign, Star, Users, Scan, History } from 'lucide-react'
+import { useSidebar } from '../../contexts/SidebarContext'
 
-interface SidebarProps {
-  isOpen: boolean
-  onClose: () => void
-  onAction: (action: string) => void
-}
-
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onAction }) => {
+export const Sidebar: React.FC = () => {
+  const { isOpen, closeSidebar, handleSidebarAction } = useSidebar()
+  
   if (!isOpen) return null
 
   const menuItems = [
@@ -30,7 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onAction }) =
       {/* Overlay */}
       <div 
         className="bg-black bg-opacity-50 flex-grow"
-        onClick={onClose}
+        onClick={closeSidebar}
       />
       
       {/* Sidebar - Opens from left */}
@@ -38,7 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onAction }) =
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Módulos</h2>
           <button
-            onClick={onClose}
+            onClick={closeSidebar}
             className="text-gray-400 hover:text-gray-600"
           >
             <X className="w-6 h-6" />
@@ -50,7 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onAction }) =
             {menuItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => onAction(item.id)}
+                onClick={() => handleSidebarAction(item.id)}
                 className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <item.icon className="w-5 h-5" />

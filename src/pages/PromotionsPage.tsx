@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Star, Search, Plus, Edit, Trash2 } from 'lucide-react'
+import { Percent, Search, Plus, Edit, Trash2 } from 'lucide-react'
+import { HeaderWithMenu } from '../components/common/HeaderWithMenu'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
@@ -136,19 +137,7 @@ export const PromotionsPage: React.FC<PromotionsPageProps> = ({ onClose }) => {
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Star className="w-6 h-6 text-gray-600" />
-            </button>
-            <span className="text-lg font-semibold text-gray-900">Promociones</span>
-          </div>
-          
-          <div className="flex items-center gap-4">
+      <HeaderWithMenu title="Promociones" icon={<Percent className="w-6 h-6 text-gray-600" />} />
             <button
               onClick={() => setShowModal(true)}
               className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"

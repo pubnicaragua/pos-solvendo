@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { X, Search, Scan, Plus, Edit, Trash2 } from 'lucide-react'
+import { Scan, Search, Plus, Edit, Trash2 } from 'lucide-react'
+import { HeaderWithMenu } from '../components/common/HeaderWithMenu'
 
 interface BarcodePageProps {
   onClose: () => void
@@ -118,19 +119,7 @@ export const BarcodePage: React.FC<BarcodePageProps> = ({ onClose }) => {
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-6 h-6 text-gray-600" />
-            </button>
-            <span className="text-lg font-semibold text-gray-900">Gestión de códigos de barras</span>
-          </div>
-          
-          <div className="flex items-center gap-4">
+      <HeaderWithMenu title="Gestión de códigos de barras" icon={<Scan className="w-6 h-6 text-gray-600" />} />
             <button
               onClick={handleScan}
               disabled={scanMode}

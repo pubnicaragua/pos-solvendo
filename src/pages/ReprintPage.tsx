@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Printer, Search, X, Calendar } from 'lucide-react'
+import { Printer, Search, Calendar } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { HeaderWithMenu } from '../components/common/HeaderWithMenu'
 import toast from 'react-hot-toast'
 
 interface ReprintPageProps {
@@ -28,8 +29,10 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
   const [printDialogVisible, setPrintDialogVisible] = useState(false)
 
   useEffect(() => {
-    loadDocuments()
-  }, [selectedDate])
+    if (empresaId) {
+      loadDocuments()
+    }
+  }, [selectedDate, empresaId])
 
   const loadDocuments = async () => {
     if (!empresaId) return
@@ -38,7 +41,7 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
       const { data, error } = await supabase
         .from('ventas')
         .select('id, folio, tipo_dte, total, fecha')
-        .eq('empresa_id', empresaId)
+        .eq('empresa_id', empresaId || 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
         .eq('fecha::date', selectedDate)
         .order('fecha', { ascending: false })
 
@@ -242,19 +245,7 @@ export const ReprintPage: React.FC<ReprintPageProps> = ({ onClose }) => {
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Printer className="w-6 h-6 text-gray-600" />
-            </button>
-            <span className="text-lg font-semibold text-gray-900">Reimprimir</span>
-          </div>
-          
-          <div className="flex items-center gap-4">
+      <HeaderWithMenu title="Reimprimir" icon={<Printer className="w-6 h-6 text-gray-600" />} />
             <span className="text-sm text-gray-600">22:00</span>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react' 
 import { Menu, Search, Save, CreditCard, User, Star, Percent, X, Plus, Minus, Calendar, Edit, Trash2 as Trash } from 'lucide-react'
-import { Sidebar } from '../components/pos/Sidebar'
 import { ClientModal } from '../components/pos/ClientModal'
 import { PaymentModal } from '../components/pos/PaymentModal'
 import { ReceiptModal } from '../components/pos/ReceiptModal'
@@ -14,10 +13,11 @@ import { usePOS } from '../contexts/POSContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { Logo } from '../components/common/Logo'
+import { useSidebar } from '../contexts/SidebarContext'
 import toast from 'react-hot-toast'
 
 export const Dashboard: React.FC = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { toggleSidebar } = useSidebar()
   const [activeTab, setActiveTab] = useState<'destacado' | 'borradores' | 'productos' | 'clientes'>('destacado')
   const [showClientModal, setShowClientModal] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
@@ -52,51 +52,6 @@ export const Dashboard: React.FC = () => {
       setFilteredProducts([])
     }
   }, [searchTerm, productos])
-
-  const handleSidebarAction = (action: string) => {
-    switch (action) {
-      case 'movimiento':
-        navigate('/movimiento')
-        break
-      case 'reimprimir':
-        navigate('/reimprimir')
-        break
-      case 'reportes':
-        navigate('/reportes')
-        break
-      case 'despacho':
-        navigate('/despacho')
-        break
-      case 'devolucion':
-        navigate('/devolucion')
-        break
-      case 'promociones':
-        navigate('/promociones')
-        break
-      case 'cierre':
-        navigate('/cierre')
-        break
-      case 'arqueo':
-        navigate('/arqueo')
-        break
-      case 'historial-movimientos':
-        navigate('/historial-movimientos')
-        break
-      case 'categorias':
-        navigate('/categorias')
-        break
-      case 'codigos-barras':
-        navigate('/codigos-barras')
-        break
-      case 'historial-cliente':
-        navigate('/historial-cliente')
-        break
-      default:
-        break
-    }
-    
-    setSidebarOpen(false)
-  }
 
   const handlePaymentComplete = (metodoPago: string, tipoDte: string) => {
     setShowPaymentModal(false)
@@ -248,7 +203,7 @@ export const Dashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setSidebarOpen(true)}
+              onClick={toggleSidebar}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <Menu className="w-6 h-6 text-gray-600" />
@@ -426,15 +381,6 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Sidebar */}
-      {sidebarOpen && (
-        <Sidebar 
-          isOpen={sidebarOpen} 
-          onClose={() => setSidebarOpen(false)} 
-          onAction={handleSidebarAction} 
-        />
-      )}
 
       {/* Modals */}
       <ClientModal 

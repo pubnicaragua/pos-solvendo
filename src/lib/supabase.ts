@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Fallback values for development
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://ujkdekqhoeyfjvtzdtaz.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqa2Rla3Fob2V5Zmp2dHpkdGF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjA2MzA0MDAsImV4cCI6MjAzNjIwNjQwMH0.example_key_replace_with_real'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase environment variables, using fallback values')

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { X, Truck, FileText, Plus, Calendar, CreditCard, DollarSign, Percent } from 'lucide-react'
+import { FileText, Truck, Plus, Calendar, CreditCard, DollarSign, Percent } from 'lucide-react'
+import { HeaderWithMenu } from '../components/common/HeaderWithMenu'
 import { usePOS } from '../contexts/POSContext'
 import { useAuth } from '../contexts/AuthContext'
 import { ClientModal } from '../components/pos/ClientModal'
@@ -193,19 +194,7 @@ export const BillingPage: React.FC<BillingPageProps> = ({ onClose }) => {
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-6 h-6 text-gray-600" />
-            </button>
-            <span className="text-lg font-semibold text-gray-900">Facturación</span>
-          </div>
-          
-          <div className="flex items-center gap-4">
+      <HeaderWithMenu title="Facturación" icon={<FileText className="w-6 h-6 text-gray-600" />} />
             <span className="text-sm text-gray-600">22:00</span>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
