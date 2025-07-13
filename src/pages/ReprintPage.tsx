@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Printer, Search, Calendar, X } from 'lucide-react'
+import { Printer, Search, X, Calendar } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
