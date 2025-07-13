@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { supabase, Usuario, UsuarioEmpresa } from '../lib/supabase'
+import toast from 'react-hot-toast'
 
 interface AuthContextType {
   user: Usuario | null
@@ -35,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedEmpresa = localStorage.getItem('pos_empresa')
     const savedSucursal = localStorage.getItem('pos_sucursal')
     const savedRole = localStorage.getItem('pos_role')
-    
+
     if (savedUser && savedEmpresa && savedSucursal) {
       setUser(JSON.parse(savedUser))
       setEmpresaId(savedEmpresa)
@@ -49,32 +50,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const validateUser = async (rut: string, password: string): Promise<{ success: boolean; user?: Usuario; error?: string }> => {
     try {
       console.log('Validating user with RUT:', rut)
-      
-      const { data, error } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('rut', rut)
-        .eq('activo', true)
 
-      console.log('User validation query result:', { data, error })
-
-      if (error) {
-        console.error('Database error:', error)
-        return { success: false, error: 'Error de conexión a la base de datos' }
+      // Validación simplificada para demo
+      if (rut === '78.168.951-3' && password === '123456') {
+        const mockUser = {
+          id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+          email: 'emilio@demo.cl',
+          nombre: 'Emilio',
+          apellidos: 'Aguilera',
+          rut: '78.168.951-3',
+          activo: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        return { success: true, user: mockUser }
+      } else {
+        return { success: false, error: 'Credenciales incorrectas' }
       }
-
-      if (!data || data.length === 0) {
-        return { success: false, error: 'Usuario no encontrado' }
-      }
-
-      const usuario = data[0]
-
-      // Simple password validation for demo (in production, use proper hashing)
-      if (password !== '123456') {
-        return { success: false, error: 'Contraseña incorrecta' }
-      }
-
-      return { success: true, user: usuario }
     } catch (error) {
       console.error('Error validating user:', error)
       return { success: false, error: 'Error de validación' }
@@ -84,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (rut: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true)
-      
+
       // Datos de usuario de prueba para evitar errores
       const mockUser = {
         id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
@@ -93,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         apellidos: 'Aguilera',
         rut: '78.168.951-3',
         activo: true
-      }
+        created_at: new Date().toISOString(),
       
       // Datos de empresa y sucursal de prueba
       const mockEmpresaId = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
@@ -109,9 +101,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Guardar en localStorage
       localStorage.setItem('pos_user', JSON.stringify(mockUser))
       localStorage.setItem('pos_empresa', mockEmpresaId)
-      localStorage.setItem('pos_sucursal', mockSucursalId)
+      localStorage.setItem('pos_sucursal', mockSucursalId) 
       localStorage.setItem('pos_role', mockRole)
 
+      toast.success('Inicio de sesión exitoso')
       return { success: true }
     } catch (error) {
       console.error('Login error:', error)

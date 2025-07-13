@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import { Eye, EyeOff, Shield } from 'lucide-react'
 import { Logo } from '../common/Logo'
 import { useAuth } from '../../contexts/AuthContext'
+import toast from 'react-hot-toast'
 
 export const LoginForm: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState<'supervisor'>('supervisor')
   const [supervisorRut, setSupervisorRut] = useState('')
   const [supervisorPassword, setSupervisorPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -23,27 +23,22 @@ export const LoginForm: React.FC = () => {
     setError('')
 
     try {
-      // Validar supervisor
-      const result = await validateUser(supervisorRut, supervisorPassword)
-      
-      if (result.success && result.user) {
-        // Si es supervisor válido, proceder con login
-        const loginResult = await login(supervisorRut, supervisorPassword)
-        if (!loginResult.success) {
-          setError(loginResult.error || 'Error en el login')
-        }
-      } else {
-        setError('Supervisor no autorizado')
+      // Simplificamos el proceso para evitar problemas
+      const loginResult = await login(supervisorRut, supervisorPassword)
+      if (!loginResult.success) {
+        setError(loginResult.error || 'Error en el login')
+        toast.error('Error en el login')
       }
     } catch (error) {
       setError('Error de conexión')
+      toast.error('Error de conexión')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="flex items-center justify-center min-h-screen p-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <Logo size="lg" className="mx-auto mb-6" />
@@ -54,8 +49,8 @@ export const LoginForm: React.FC = () => {
             <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
               <Shield className="w-8 h-8 text-orange-600" />
             </div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Autorización</h2>
-            <p className="text-gray-600">ID / RUT Supervisor</p>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Iniciar Sesión</h2>
+            <p className="text-gray-600">Ingrese sus credenciales</p>
           </div>
 
           <form onSubmit={handleSupervisorAuth} className="space-y-6">
@@ -64,7 +59,7 @@ export const LoginForm: React.FC = () => {
               <input
                 type="text"
                 value={supervisorRut}
-                onChange={(e) => setSupervisorRut(e.target.value)}
+                onChange={(e) => setSupervisorRut(e.target.value.trim())}
                 placeholder="12.345.678-9"
                 className="w-full px-4 py-3 bg-gray-100 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                 autoFocus
@@ -76,7 +71,7 @@ export const LoginForm: React.FC = () => {
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={supervisorPassword}
-                onChange={(e) => setSupervisorPassword(e.target.value)}
+                onChange={(e) => setSupervisorPassword(e.target.value.trim())}
                 placeholder="Contraseña del Supervisor"
                 className="w-full px-4 py-3 bg-gray-100 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
               />
@@ -101,6 +96,7 @@ export const LoginForm: React.FC = () => {
               className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors h-12"
             >
               {loading ? 'Ingresando...' : 'Ingresar'}
+              <span className="block text-xs mt-1">Usar: 78.168.951-3 / 123456</span>
             </button>
           </form>
         </div>

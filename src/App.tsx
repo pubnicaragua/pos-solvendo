@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { POSProvider } from './contexts/POSContext'
 import { LoginForm } from './components/auth/LoginForm'
-import { Dashboard } from './pages/Dashboard'
+import Dashboard from './pages/Dashboard'
 import { CashMovementPage } from './pages/CashMovementPage'
 import { ReprintPage } from './pages/ReprintPage'
 import { ReportsPage } from './pages/ReportsPage'
@@ -31,7 +31,11 @@ const AppRoutes: React.FC = () => {
   }
 
   if (!user) {
-    return <LoginForm />
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LoginForm />
+      </div>
+    )
   }
 
   return (

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Menu, Search, ShoppingCart, Save, CreditCard, User, Star, Percent, X, Plus, Minus, Calendar, Edit, Trash } from 'lucide-react'
+import React, { useState, useEffect } from 'react' 
+import { Menu, Search, Save, CreditCard, User, Star, Percent, X, Plus, Minus, Calendar, Edit, Trash } from 'lucide-react'
 import { Sidebar } from '../components/pos/Sidebar'
 import { ClientModal } from '../components/pos/ClientModal'
 import { PaymentModal } from '../components/pos/PaymentModal'
@@ -15,6 +15,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { Logo } from '../components/common/Logo'
 import toast from 'react-hot-toast'
+
+const Dashboard: React.FC = () => {
 
 export const Dashboard: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -242,7 +244,7 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col relative">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
@@ -428,11 +430,13 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Sidebar */}
-      <Sidebar 
-        isOpen={sidebarOpen} 
-        onClose={() => setSidebarOpen(false)} 
-        onAction={handleSidebarAction} 
-      />
+      {sidebarOpen && (
+        <Sidebar 
+          isOpen={sidebarOpen} 
+          onClose={() => setSidebarOpen(false)} 
+          onAction={handleSidebarAction} 
+        />
+      )}
 
       {/* Modals */}
       <ClientModal 
@@ -488,3 +492,5 @@ export const Dashboard: React.FC = () => {
     </div>
   )
 }
+
+export default Dashboard
