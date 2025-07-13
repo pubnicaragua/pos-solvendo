@@ -134,11 +134,10 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
         <div className="bg-white rounded-xl p-6 max-w-sm w-full">
           <div className="text-center">
             <button
+              onClick={() => setShowClientError(false)}
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No has seleccionado el cliente</h3>
-              <Button fullWidth onClick={() => setShowClientError(false)}>
-                OK
-              </Button>
+              OK
             </button>
           </div>
         </div>
@@ -222,13 +221,12 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
                       </p>
                       <p className="text-xs text-blue-700">RUT: {selectedClient.rut}</p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
+                    <button
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                       onClick={() => setSelectedClient(null)}
                     >
                       Cambiar
-                    </Button>
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -238,19 +236,21 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
                       <User className="w-4 h-4 text-blue-600" />
                       <span className="text-sm font-medium text-blue-800">Clientes</span>
                     </div>
-                    <Input
-                      placeholder="Cliente"
-                      icon={Search}
-                      iconPosition="left"
-                    />
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <input
+                        type="text"
+                        placeholder="Cliente"
+                        className="w-full pl-10 pr-4 py-2 border border-blue-300 rounded-lg text-sm"
+                      />
+                    </div>
                   </div>
-                  <Button
-                    variant="primary"
-                    fullWidth
+                  <button
+                    className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                     onClick={() => setShowClientModal(true)}
                   >
                     Registrar nuevo cliente
-                  </Button>
+                  </button>
                 </div>
               )}
             </div>

@@ -23,7 +23,7 @@ export const CashMovementModal: React.FC<CashMovementModalProps> = ({
   
   const today = new Date().toISOString().split('T')[0]
   
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen) {
       loadMovements()
     }
