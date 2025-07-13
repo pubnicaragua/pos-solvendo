@@ -86,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         rut: '78.168.951-3',
         activo: true
         created_at: new Date().toISOString(),
+      }
       
       // Datos de empresa y sucursal de prueba
       const mockEmpresaId = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
