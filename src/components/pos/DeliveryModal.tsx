@@ -282,45 +282,66 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
                   </select>
                 </div>
               </div>
-              <button className="p-2 text-gray-500 hover:text-gray-700">
-                <X className="w-4 h-4" />
-              </button>
-              <Input
-                label="Destinatario"
-                value={deliveryData.destinatario}
-                onChange={(value) => setDeliveryData(prev => ({ ...prev, destinatario: value }))}
-              />
-
-              <Input
-                label="Dirección"
-                value={deliveryData.direccion}
-                onChange={(value) => setDeliveryData(prev => ({ ...prev, direccion: value }))}
-              />
-
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  label="Comuna"
-                  value={deliveryData.comuna}
-                  onChange={(value) => setDeliveryData(prev => ({ ...prev, comuna: value }))}
-                />
-                <Input
-                  label="Ciudad"
-                  value={deliveryData.ciudad}
-                  onChange={(value) => setDeliveryData(prev => ({ ...prev, ciudad: value }))}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Destinatario</label>
+                <input
+                  type="text"
+                  value={deliveryData.destinatario}
+                  onChange={(e) => setDeliveryData(prev => ({ ...prev, destinatario: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 />
               </div>
 
-              <Input
-                label="Región"
-                value={deliveryData.region}
-                onChange={(value) => setDeliveryData(prev => ({ ...prev, region: value }))}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                <input
+                  type="text"
+                  value={deliveryData.direccion}
+                  onChange={(e) => setDeliveryData(prev => ({ ...prev, direccion: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
 
-              <Input
-                label="Núm. documento"
-                value={deliveryData.numeroDocumento}
-                onChange={(value) => setDeliveryData(prev => ({ ...prev, numeroDocumento: value }))}
-              />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Comuna</label>
+                  <input
+                    type="text"
+                    value={deliveryData.comuna}
+                    onChange={(e) => setDeliveryData(prev => ({ ...prev, comuna: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+                  <input
+                    type="text"
+                    value={deliveryData.ciudad}
+                    onChange={(e) => setDeliveryData(prev => ({ ...prev, ciudad: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Región</label>
+                <input
+                  type="text"
+                  value={deliveryData.region}
+                  onChange={(e) => setDeliveryData(prev => ({ ...prev, region: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Núm. documento</label>
+                <input
+                  type="text"
+                  value={deliveryData.numeroDocumento}
+                  onChange={(e) => setDeliveryData(prev => ({ ...prev, numeroDocumento: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
 
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />

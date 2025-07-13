@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react' 
-import { Menu, Search, Save, CreditCard, User, Star, Percent, X, Plus, Minus, Calendar, Edit, Trash } from 'lucide-react'
+import { Menu, Search, Save, CreditCard, User, Star, Percent, X, Plus, Minus, Calendar, Edit, Trash2 as Trash } from 'lucide-react'
 import { Sidebar } from '../components/pos/Sidebar'
 import { ClientModal } from '../components/pos/ClientModal'
 import { PaymentModal } from '../components/pos/PaymentModal'

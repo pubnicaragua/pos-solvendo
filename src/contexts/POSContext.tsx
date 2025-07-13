@@ -401,7 +401,74 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const openCaja = async (montoInicial: number) => {
     if (!user || !empresaId || !sucursalId) return false
 
-    // Apertura exitosa sin intentar conectar a Supabase
+    try {
+      // Simulamos apertura exitosa sin conectar a Supabase
+      setCajaAbierta(true)
+      toast.success('Caja aperturada correctamente')
+      return true
+    } catch (error) {
+      console.error('Error opening cash register:', error)
+      toast.error('Error al abrir caja')
+      return false
+    }
+  }
+
+  const closeCaja = async () => {
+    if (!user) return false
+
+    try {
+      // Simulamos cierre exitoso
+      setCajaAbierta(false)
+      toast.success('Caja cerrada correctamente')
+      return true
+    } catch (error) {
+      console.error('Error closing cash register:', error)
+      toast.error('Error al cerrar caja')
+      return false
+    }
+  }
+
+  useEffect(() => {
+    if (empresaId) {
+      loadProductos()
+      loadPromociones()
+      loadBorradores()
+      checkCajaStatus()
+    }
+  }, [empresaId])
+
+  const value = {
+    productos,
+    loading,
+    loadProductos,
+    carrito,
+    total,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    borradores,
+    loadBorradores,
+    saveDraft,
+    loadDraft,
+    deleteDraft,
+    procesarVenta,
+    crearCliente,
+    cajaAbierta,
+    checkCajaStatus,
+    openCaja,
+    closeCaja,
+    promociones,
+    loadPromociones,
+    aplicarPromocion
+  }
+
+  return (
+    <POSContext.Provider value={value}>
+      {children}
+    </POSContext.Provider>
+  )
+};
     setCajaAbierta(true)
     toast.success('Caja aperturada correctamente')
     return true

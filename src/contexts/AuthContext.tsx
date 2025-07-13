@@ -76,8 +76,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (rut: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       setLoading(true)
-      
-      // Validación simple para demo
+
+      // Validación simple para demo - solo acepta estas credenciales
       if (rut !== '78.168.951-3' || password !== '123456') {
         return { success: false, error: 'Credenciales incorrectas' };
       }
@@ -89,8 +89,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         nombre: 'Emilio',
         apellidos: 'Aguilera',
         rut: '78.168.951-3',
-        activo: true
+        activo: true,
         created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
       
       // Datos de empresa y sucursal de prueba
