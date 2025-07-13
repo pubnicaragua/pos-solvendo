@@ -12,9 +12,10 @@ import { PromotionModal } from '../components/pos/PromotionModal'
 import { usePOS } from '../contexts/POSContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { Logo } from '../components/common/Logo'
 import { useSidebar } from '../contexts/SidebarContext'
 import toast from 'react-hot-toast'
+import { Logo } from '../components/common/Logo'
+import { Menu } from 'lucide-react'
 
 export const Dashboard: React.FC = () => {
   const { toggleSidebar } = useSidebar()
