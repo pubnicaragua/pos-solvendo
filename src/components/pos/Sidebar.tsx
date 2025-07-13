@@ -62,4 +62,4 @@ export const Sidebar: React.FC = () => {
       </div>
     </div>
   )
-};
+}

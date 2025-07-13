@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react' 
-import { Menu, Search, Save, CreditCard, User, Star, Percent, X, Plus, Minus, Calendar, Edit, Trash2 as Trash } from 'lucide-react'
+import { Search, Save, CreditCard, User, Star, Percent, X, Plus, Minus, Calendar, Edit, Trash2 as Trash } from 'lucide-react'
 import { ClientModal } from '../components/pos/ClientModal'
 import { PaymentModal } from '../components/pos/PaymentModal'
 import { ReceiptModal } from '../components/pos/ReceiptModal'
@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSidebar } from '../contexts/SidebarContext'
 import toast from 'react-hot-toast'
 import { Logo } from '../components/common/Logo'
-import { Menu } from 'lucide-react'
+import { Menu as MenuIcon } from 'lucide-react'
 
 export const Dashboard: React.FC = () => {
   const { toggleSidebar } = useSidebar()
@@ -207,7 +207,7 @@ export const Dashboard: React.FC = () => {
               onClick={toggleSidebar}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <Menu className="w-6 h-6 text-gray-600" />
+              <MenuIcon className="w-6 h-6 text-gray-600" />
             </button>
             <span className="text-lg font-semibold text-gray-900">POS</span>
           </div>
